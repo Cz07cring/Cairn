@@ -102,7 +102,9 @@ async def product_gate(request: Request, call_next):
             if binding:
                 if binding["ring_project_id"] not in principal["project_ids"]:
                     return JSONResponse({"detail": "Project not found"}, status_code=404)
-                if request.method != "GET":
+                if request.method != "GET" and not (
+                    request.method == "POST" and len(parts) == 3 and parts[2] == "plan-snapshots"
+                ):
                     try:
                         await run_in_threadpool(
                             verified_goal,

@@ -43,6 +43,36 @@ from cairn.server.services import (
 router = APIRouter(tags=["intents"])
 
 
+def _snapshot_for_request(conn: sqlite3.Connection, fingerprint: str, request_json: bytes,
+                          project_id: str, ring_project_id: str, ring_goal_id: str,
+                          actor: str) -> tuple[str, bytes] | None:
+    row = conn.execute(
+        """SELECT r.project_id, r.ring_project_id, r.ring_goal_id, r.actor,
+                  r.request_json, r.snapshot_digest, s.digest, s.canonical_json,
+                  s.project_id AS snapshot_project_id,
+                  s.ring_project_id AS snapshot_ring_project_id,
+                  s.ring_goal_id AS snapshot_ring_goal_id,
+                  s.created_by AS snapshot_actor
+           FROM ring_plan_snapshot_requests r
+           LEFT JOIN ring_plan_snapshots s ON s.digest = r.snapshot_digest
+           WHERE r.request_fingerprint = ?""",
+        (fingerprint,),
+    ).fetchone()
+    if row is None:
+        return None
+    scope = (project_id, ring_project_id, ring_goal_id, actor)
+    if (tuple(row[key] for key in ("project_id", "ring_project_id", "ring_goal_id", "actor")) != scope
+            or bytes(row["request_json"]) != request_json):
+        raise HTTPException(409, "Plan snapshot request fingerprint collision")
+    if (row["digest"] != row["snapshot_digest"]
+            or tuple(row[key] for key in ("snapshot_project_id", "snapshot_ring_project_id",
+                                           "snapshot_ring_goal_id", "snapshot_actor")) != scope):
+        raise HTTPException(503, "Stored plan snapshot request is inconsistent")
+    raw = bytes(row["canonical_json"])
+    decode_snapshot(raw, row["snapshot_digest"])
+    return row["snapshot_digest"], raw
+
+
 @router.post("/projects/{project_id}/plan-snapshots", status_code=201)
 def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Request):
     if not product_mode():
@@ -50,8 +80,12 @@ def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Re
     principal = request.state.ring_principal
     if "operator" not in principal["roles"]:
         raise HTTPException(403, "Ring operator role required")
+    actor = principal["user_id"]
+    request_body = body.model_dump()
+    request_json = canonical(request_body).encode("utf-8")
     with get_conn() as conn:
-        if project_role(conn, project_id, principal["user_id"]) != "owner":
+        conn.execute("BEGIN IMMEDIATE")
+        if project_role(conn, project_id, actor) != "owner":
             raise HTTPException(403, "Project owner required")
         binding = binding_for(conn, project_id)
         if binding is None:
@@ -59,6 +93,15 @@ def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Re
         if binding["ring_project_id"] not in principal["project_ids"]:
             raise HTTPException(404, "Project not found")
         ring_project_id, ring_goal_id = binding["ring_project_id"], binding["ring_goal_id"]
+        fingerprint = digest({"schema": "CairnPlanSnapshotRequest/v1",
+                              "project_id": project_id, "ring_project_id": ring_project_id,
+                              "ring_goal_id": ring_goal_id, "actor": actor,
+                              "body": request_body})
+        sealed = _snapshot_for_request(conn, fingerprint, request_json, project_id,
+                                       ring_project_id, ring_goal_id, actor)
+        if sealed is not None:
+            snapshot_digest, raw = sealed
+            return {"digest": snapshot_digest, "snapshot": decode_snapshot(raw, snapshot_digest)}
     candidate = read_candidate_summary(
         request.state.ring_config, request.state.ring_cookie,
         ring_goal_id, ring_project_id, body.candidate_plan_id,
@@ -68,20 +111,32 @@ def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Re
     )
     with get_conn() as conn:
         conn.execute("BEGIN IMMEDIATE")
-        if project_role(conn, project_id, principal["user_id"]) != "owner":
+        if project_role(conn, project_id, actor) != "owner":
             raise HTTPException(403, "Project owner required")
         binding = binding_for(conn, project_id)
         if (binding is None or binding["ring_project_id"] != ring_project_id
                 or binding["ring_goal_id"] != ring_goal_id):
             raise HTTPException(409, "Project binding changed")
+        if ring_project_id not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        sealed = _snapshot_for_request(conn, fingerprint, request_json, project_id,
+                                       ring_project_id, ring_goal_id, actor)
+        if sealed is not None:
+            snapshot_digest, raw = sealed
+            return {"digest": snapshot_digest, "snapshot": decode_snapshot(raw, snapshot_digest)}
         check_project_active(conn, project_id)
         snapshot_digest, raw = seal_snapshot(
-            conn, project_id, binding, principal["user_id"], body, goal, candidate,
+            conn, project_id, binding, actor, body, goal, candidate,
         )
         existing = conn.execute(
-            "SELECT canonical_json FROM ring_plan_snapshots WHERE digest=?", (snapshot_digest,)
+            """SELECT project_id, ring_project_id, ring_goal_id, created_by, canonical_json
+               FROM ring_plan_snapshots WHERE digest=?""", (snapshot_digest,)
         ).fetchone()
-        if existing is not None and bytes(existing["canonical_json"]) != raw:
+        if existing is not None and (
+            bytes(existing["canonical_json"]) != raw
+            or tuple(existing[key] for key in ("project_id", "ring_project_id", "ring_goal_id", "created_by"))
+            != (project_id, ring_project_id, ring_goal_id, actor)
+        ):
             raise HTTPException(409, "Plan snapshot digest collision")
         if existing is None:
             conn.execute(
@@ -89,8 +144,16 @@ def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Re
                    (digest, project_id, ring_project_id, ring_goal_id, created_by, canonical_json, created_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (snapshot_digest, project_id, ring_project_id, ring_goal_id,
-                 principal["user_id"], raw, utcnow()),
+                 actor, raw, utcnow()),
             )
+        conn.execute(
+            """INSERT INTO ring_plan_snapshot_requests
+               (request_fingerprint, project_id, ring_project_id, ring_goal_id,
+                actor, request_json, snapshot_digest)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (fingerprint, project_id, ring_project_id, ring_goal_id, actor,
+             request_json, snapshot_digest),
+        )
     return {"digest": snapshot_digest, "snapshot": decode_snapshot(raw, snapshot_digest)}
 
 

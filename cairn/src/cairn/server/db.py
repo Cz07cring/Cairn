@@ -126,6 +126,16 @@ CREATE TABLE IF NOT EXISTS ring_plan_snapshots (
 
 CREATE INDEX IF NOT EXISTS ring_plan_snapshots_project
     ON ring_plan_snapshots(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ring_plan_snapshot_requests (
+    request_fingerprint TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    ring_project_id TEXT NOT NULL,
+    ring_goal_id TEXT NOT NULL,
+    actor TEXT NOT NULL,
+    request_json BLOB NOT NULL,
+    snapshot_digest TEXT NOT NULL REFERENCES ring_plan_snapshots(digest) ON DELETE CASCADE
+);
 """
 
 

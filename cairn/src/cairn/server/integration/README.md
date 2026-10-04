@@ -95,23 +95,43 @@ Intent; editing a submitted Intent's request is not allowed.
 `selected_intent_id`、`fact_ids`、`hint_ids`（可以是空数组）、
 `graph_digest`、`goal_contract_revision`、`goal_contract_digest`、
 `expected_plan_revision`（可为 `null`），以及必填的 `candidate_plan_id`。
-请求体不接收 cookie、key、Evidence 或候选正文。Ring 会话只用于本次服务端回读。
+请求体不接收 cookie、key、Evidence 或候选正文。Ring 会话用于入口实时鉴权，
+新请求才用该会话回读 Ring 状态。
 
-服务端先回读 Goal 的完整分页 Plan 列表，再回读当前 Goal/snapshot。
+服务端先核对当前 Ring `operator` 角色、本地 owner、当前绑定和 Ring project
+scope。随后按原请求的规范 JSON 字段值及项目、绑定、用户计算
+`CairnPlanSnapshotRequest/v1` 指纹，查询本地已封存映射。若映射存在，
+直接返回原 digest 与已校验的快照字节对应的 JSON；此路径不要求当前图、
+Goal 或候选仍保持封存时状态，也不请求 Ring。指纹保留数组次序，忽略 JSON
+对象键顺序和空白；请求必须仍通过当前请求模型校验。owner、绑定或 scope
+失效时不得用旧指纹取回快照。GET 路径仍可按当前权限和 digest 回读。
+入口中间件仍实时核对 Ring 会话、CSRF、Origin、owner 和 project scope，
+但此 POST 的通用 Goal 回读由路由在映射未命中后执行。
+
+新请求才回读 Goal 的完整分页 Plan 列表，再回读当前 Goal/snapshot。
 候选必须是 B2 在同一 Intent 保存的 Plan ID，Ring 当前返回的状态必须为
 `CANDIDATE`、`plan_revision=null`，且有有效 `content_digest`。
 候选摘要只包含受限的 Task ID、目标、依赖及 coverage 结构；不复制 reason、
 完整 TaskContract 或任何 Evidence。Ring 读取失败返回 `503`，调用方应标为
 `UNKNOWN`，不得猜测成功。
 
-SQLite `BEGIN IMMEDIATE` 事务内再次检查 ACL、绑定、项目状态、图摘要、
+SQLite `BEGIN IMMEDIATE` 事务内再次检查 ACL、绑定及同一请求映射；并发
+请求若在 Ring 回读期间已有成功封存，直接返回那份结果。映射未命中时，
+再检查项目状态、图摘要、
 Intent 来源边、所选 Fact/Hint 和 Goal 版本。Fact 集必须与该 Intent 当前来源
 Fact 集完全一致。Intent 必须未领取且未结束。图文字、候选摘要和规范 JSON
 分别有长度上界；疑似凭据文本和超限输入直接拒绝，不裁剪。敏感文本正则
 只是启发式，不能证明任意 Fact 不含秘密；录入 Fact 的人仍须避免放入凭据
 或原始敏感 Evidence。规范 JSON 用
 UTF-8、排序键、紧凑分隔符封存为 BLOB，并以原始字节计算 `sha256:` 摘要。
-`created_at` 不参与摘要；同一用户对同一选择及版本重放会得到相同摘要。
+`created_at` 不参与摘要。快照与指纹到 digest、actor、Cairn project 和
+Ring binding 的唯一映射在同一事务提交；提交失败两者一起回滚。指纹命中
+时校验原请求 JSON、映射 scope、快照 scope 和快照摘要。已有库通过
+`CREATE TABLE IF NOT EXISTS` 增加映射表；升级前封存的旧快照没有映射，
+不能靠原请求键恢复 digest。旧快照只有持有 digest 且通过 GET 当前权限
+核对时才能回读；服务端不会根据漂移后的当前态编造历史映射。
+`BEGIN IMMEDIATE` 只序列化 Cairn SQLite 写入；Ring 的外部状态不能被这个
+事务锁定。新请求沿用现有 Ring 读取与失败关闭边界。
 
 `GET /projects/{id}/plan-snapshots/{digest}` 按当前本地 ACL 和 Ring project
 scope 返回封存的**原始规范 JSON 字节**，`X-Content-Digest` 给出摘要。浏览器
