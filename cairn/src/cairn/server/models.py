@@ -50,6 +50,8 @@ class ProjectMeta(BaseModel):
     bootstrap_enabled: bool
     created_at: str
     reason: ProjectReason | None = None
+    execution_mode: Literal["standalone", "ring"] = "standalone"
+    access_role: Literal["owner", "viewer"] | None = None
 
 
 class ProjectSummary(ProjectMeta):
@@ -242,3 +244,22 @@ class ReopenResponse(BaseModel):
     project: ProjectMeta
     fact: Fact
     intent: Intent
+
+
+class RingBindingRequest(BaseModel):
+    ring_project_id: str
+    ring_goal_id: str
+
+
+class RingBindingResponse(BaseModel):
+    cairn_project_id: str
+    ring_project_id: str
+    ring_goal_id: str
+    bound_by: str
+    bound_at: str
+    state_revision: int
+    latest_seq: str
+
+
+class ProjectMemberRequest(BaseModel):
+    role: Literal["viewer"]

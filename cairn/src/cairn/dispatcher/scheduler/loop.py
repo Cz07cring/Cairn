@@ -197,7 +197,10 @@ class DispatcherLoop:
                 len(self.futures),
             )
             return
-        active = [summary for summary in summaries if summary.status == "active"]
+        active = [
+            summary for summary in summaries
+            if summary.status == "active" and summary.execution_mode == "standalone"
+        ]
         if not active:
             self._log_changed("dispatch/global", logging.INFO, "skip dispatch because no active projects")
             return
@@ -252,6 +255,9 @@ class DispatcherLoop:
         return [by_id[project_id] for project_id in ordered_ids]
 
     def _try_dispatch_project(self, summary: ProjectSummary) -> bool:
+        if summary.execution_mode != "standalone":
+            LOG.warning("skip Ring-bound project in Cairn dispatcher project=%s", summary.id)
+            return False
         skip_scope = f"project:{summary.id}:skip"
         container_name = self.container_manager.container_name(summary.id)
         if container_name in self._cleanup_pending:
@@ -274,6 +280,9 @@ class DispatcherLoop:
             return False
 
         project = self.client.get_project(summary.id)
+        if project.project.execution_mode != "standalone":
+            LOG.warning("skip Ring-bound project after detail read project=%s", summary.id)
+            return False
         if project.project.status != "active":
             self._log_changed(
                 f"{skip_scope}:status",
@@ -638,7 +647,10 @@ class DispatcherLoop:
         }
 
     def _running_project_count(self, summaries: list[ProjectSummary]) -> int:
-        active_ids = {summary.id for summary in summaries if summary.status == "active"}
+        active_ids = {
+            summary.id for summary in summaries
+            if summary.status == "active" and summary.execution_mode == "standalone"
+        }
         return len(self.runtime_project_ids & active_ids)
 
     def _project_open_intent_count(self, project: ProjectDetail) -> int:
@@ -834,7 +846,10 @@ class DispatcherLoop:
                 LOG.exception("container cleanup failed container=%s", name)
 
     def _refresh_runtime_projects(self, summaries: list[ProjectSummary]) -> None:
-        active_ids = {summary.id for summary in summaries if summary.status == "active"}
+        active_ids = {
+            summary.id for summary in summaries
+            if summary.status == "active" and summary.execution_mode == "standalone"
+        }
         self.runtime_project_ids.intersection_update(active_ids)
         inactive_status_by_id = {summary.id: summary.status for summary in summaries if summary.status != "active"}
         for project_id, status in list(self._inactive_cleanup_done.items()):
@@ -843,7 +858,10 @@ class DispatcherLoop:
                 self._inactive_cleanup_done.pop(project_id, None)
 
     def _cancel_inactive_tasks(self, summaries: list[ProjectSummary]) -> None:
-        status_by_project = {summary.id: summary.status for summary in summaries}
+        status_by_project = {
+            summary.id: ("ring_bound" if summary.execution_mode == "ring" else summary.status)
+            for summary in summaries
+        }
         for task in self.futures.values():
             status = status_by_project.get(task.project_id, "deleted")
             if status != "active" and task.cancellation.cancel(status):
@@ -857,7 +875,7 @@ class DispatcherLoop:
 
     def _initialize_reason_checkpoints(self, summaries: list[ProjectSummary]) -> None:
         for summary in summaries:
-            if summary.status != "active":
+            if summary.status != "active" or summary.execution_mode != "standalone":
                 continue
             if summary.id in self.reason_checkpoints:
                 continue

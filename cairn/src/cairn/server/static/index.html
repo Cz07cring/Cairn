@@ -228,6 +228,15 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden" :class="{ 'select-none cursor-col-resize': isResizingPanel }" x-data="cairnApp()">
 
+<div x-show="authState !== 'ready'" x-cloak class="fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center p-5">
+  <div class="max-w-md w-full rounded-2xl border border-slate-200 bg-white p-7 shadow-lg">
+    <h1 class="text-lg font-semibold text-slate-800">Cairn · Ring</h1>
+    <p class="mt-2 text-sm text-slate-600" x-text="authMessage"></p>
+    <a x-show="authState === 'login'" :href="loginUrl" class="inline-block mt-5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">Sign in with Ring</a>
+    <button x-show="authState === 'unknown'" @click="window.location.reload()" class="mt-5 rounded-lg border border-slate-300 px-4 py-2 text-sm">Retry</button>
+  </div>
+</div>
+
 <!-- ═══════════ PROJECT LIST VIEW ═══════════ -->
 <div x-show="view === 'list'" x-cloak class="flex-1 flex flex-col overflow-hidden">
   <header class="bg-white/80 backdrop-blur border-b border-slate-200/60 px-4 py-2.5 flex items-center gap-3 shrink-0">
@@ -236,6 +245,7 @@
         <img src="/static/favicon.svg" alt="" class="w-5 h-5 block">
       </div>
       <span class="font-semibold text-slate-700 tracking-tight">Cairn</span>
+      <span class="text-[10px] rounded-full bg-slate-100 px-2 py-0.5 text-slate-600" x-text="productMode === 'ring' ? 'Ring product' : 'Standalone'"></span>
     </div>
     <div class="flex-1"></div>
     <div class="flex items-center gap-3 text-[11px] text-slate-400">
@@ -274,7 +284,7 @@
       <button @click="showLocalPrefs = true" class="h-7 max-w-40 px-2.5 rounded-lg border border-slate-200 text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition inline-flex items-center shrink-0">
         <span class="truncate block" x-text="actorName()"></span>
       </button>
-      <button @click="loadSettings(); showSettings = true" class="h-7 w-7 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition inline-flex items-center justify-center shrink-0">
+      <button x-show="productMode !== 'ring'" @click="loadSettings(); showSettings = true" class="h-7 w-7 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition inline-flex items-center justify-center shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7 7 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a7 7 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a7 7 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a7 7 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0-3 3 0 0 1 6 0Z"/></svg>
       </button>
     </div>
@@ -295,7 +305,8 @@
           class="group h-full flex flex-col bg-white rounded-2xl border border-slate-200/60 p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-slate-200/50 hover:border-slate-300 hover:-translate-y-0.5">
           <div class="flex items-start justify-between mb-3">
             <span class="text-[11px] font-mono text-slate-400 tracking-wide" x-text="p.id"></span>
-            <span class="px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-[0.12em]"
+            <span x-show="p.execution_mode === 'ring'" class="text-[10px] font-semibold text-violet-700">Ring · UNKNOWN</span>
+            <span x-show="p.execution_mode !== 'ring'" class="px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-[0.12em]"
               :class="projectStatusBadgeClass(p.status)"
               x-text="p.status"></span>
           </div>
@@ -303,6 +314,7 @@
             <div class="title-action-trigger flex items-start gap-2">
               <h3 class="min-w-0 flex-1 text-[15px] font-semibold text-slate-700 break-words [overflow-wrap:anywhere] group-hover:text-brand-600 transition-colors" x-text="p.title"></h3>
               <button type="button"
+                x-show="productMode !== 'ring' || p.access_role === 'owner'"
                 @click.stop="openRenameProject(p.id, p.title)"
                 class="title-action-button mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
                 title="Rename project"
@@ -362,7 +374,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M14.25 3H7.5A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h9a2.25 2.25 0 0 0 2.25-2.25V8.25L14.25 3Z"/><path d="M14.25 3v5.25h4.5"/><path d="M8.25 12h7.5M8.25 15h5.25"/></svg>
                 Snapshot
               </button>
-              <template x-if="p.status !== 'completed'">
+              <template x-if="p.execution_mode !== 'ring' && p.status !== 'completed' && (productMode !== 'ring' || p.access_role === 'owner')">
                 <button type="button" @click.stop="toggleProjectStopById(p.id, p.status)"
                   class="px-2 py-1 rounded-lg border text-[11px] transition flex items-center gap-1"
                   :class="p.status === 'active'
@@ -373,14 +385,14 @@
                   <span x-text="p.status === 'active' ? 'Stop' : 'Resume'"></span>
                 </button>
               </template>
-              <template x-if="p.status === 'completed'">
+              <template x-if="p.execution_mode !== 'ring' && p.status === 'completed' && (productMode !== 'ring' || p.access_role === 'owner')">
                 <button type="button" @click.stop="openReopenProject(p.id, p.title)"
                   class="px-2 py-1 rounded-lg border border-sky-200 text-[11px] text-sky-600 hover:bg-sky-50 transition flex items-center gap-1">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.708"/><path d="M3 3v6h6"/></svg>
                   Reopen
                 </button>
               </template>
-              <button type="button" @click.stop="deleteProjectById(p.id, p.title)"
+              <button x-show="p.execution_mode !== 'ring' && (productMode !== 'ring' || p.access_role === 'owner')" type="button" @click.stop="deleteProjectById(p.id, p.title)"
                 class="px-2 py-1 rounded-lg border border-rose-200 text-[11px] text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4.75A1.75 1.75 0 0 1 9.75 3h4.5A1.75 1.75 0 0 1 16 4.75V6"/><path d="M19 6l-.63 11.338A2 2 0 0 1 16.37 19.5H7.63a2 2 0 0 1-1.997-2.162L5 6"/><path d="M10 10.5v5"/><path d="M14 10.5v5"/></svg>
                 Delete
@@ -403,7 +415,7 @@
     <div class="title-action-trigger flex items-center gap-2 min-w-0">
       <span class="text-[11px] font-mono text-slate-400" x-text="project.project.id"></span>
       <h2 class="text-[15px] font-semibold text-slate-700 truncate" x-text="project.project.title"></h2>
-      <button x-show="!replay.active" @click="openRenameProject(project.project.id, project.project.title)"
+      <button x-show="!replay.active && (productMode !== 'ring' || project.project.access_role === 'owner')" @click="openRenameProject(project.project.id, project.project.title)"
         class="title-action-button inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
         title="Rename project"
         :aria-label="`Rename ${project.project.title}`">
@@ -411,7 +423,7 @@
       </button>
       <span class="px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-[0.12em] shrink-0"
         :class="projectStatusBadgeClass(project.project.status)"
-        x-text="project.project.status"></span>
+        x-text="project.project.execution_mode === 'ring' ? `Ring · ${ringStatus.state}` : project.project.status"></span>
     </div>
     <div class="flex-1"></div>
     <div class="flex items-center gap-4 text-xs text-slate-400">
@@ -449,7 +461,7 @@
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M14.25 3H7.5A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h9a2.25 2.25 0 0 0 2.25-2.25V8.25L14.25 3Z"/><path d="M14.25 3v5.25h4.5"/><path d="M8.25 12h7.5M8.25 15h5.25"/></svg>
         Snapshot
       </button>
-      <template x-if="!replay.active && project.project.status !== 'completed'">
+      <template x-if="!replay.active && project.project.execution_mode !== 'ring' && project.project.status !== 'completed' && (productMode !== 'ring' || project.project.access_role === 'owner')">
         <button @click="toggleProjectStop()"
           class="px-2.5 py-1 rounded-lg border text-xs transition flex items-center gap-1.5"
           :class="project.project.status === 'active'
@@ -460,14 +472,14 @@
           <span x-text="project.project.status === 'active' ? 'Stop' : 'Resume'"></span>
         </button>
       </template>
-      <template x-if="!replay.active && project.project.status === 'completed'">
+      <template x-if="!replay.active && project.project.execution_mode !== 'ring' && project.project.status === 'completed' && (productMode !== 'ring' || project.project.access_role === 'owner')">
         <button @click="openReopenProject(project.project.id, project.project.title)"
           class="px-2.5 py-1 rounded-lg border border-sky-200 text-xs text-sky-600 hover:bg-sky-50 transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.708"/><path d="M3 3v6h6"/></svg>
           Reopen
         </button>
       </template>
-      <button x-show="!replay.active" @click="deleteProject()" class="px-2.5 py-1 rounded-lg border border-rose-200 text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition flex items-center gap-1.5">
+      <button x-show="!replay.active && project.project.execution_mode !== 'ring' && (productMode !== 'ring' || project.project.access_role === 'owner')" @click="deleteProject()" class="px-2.5 py-1 rounded-lg border border-rose-200 text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4.75A1.75 1.75 0 0 1 9.75 3h4.5A1.75 1.75 0 0 1 16 4.75V6"/><path d="M19 6l-.63 11.338A2 2 0 0 1 16.37 19.5H7.63a2 2 0 0 1-1.997-2.162L5 6"/><path d="M10 10.5v5"/><path d="M14 10.5v5"/></svg>
         Delete
       </button>
@@ -476,11 +488,30 @@
       <button @click="showLocalPrefs = true" class="h-7 max-w-40 px-2.5 rounded-lg border border-slate-200 text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition inline-flex items-center shrink-0">
         <span class="truncate block" x-text="actorName()"></span>
       </button>
-      <button @click="loadSettings(); showSettings = true" class="h-7 w-7 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition inline-flex items-center justify-center shrink-0">
+      <button x-show="productMode !== 'ring'" @click="loadSettings(); showSettings = true" class="h-7 w-7 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition inline-flex items-center justify-center shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7 7 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a7 7 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a7 7 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a7 7 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0-3 3 0 0 1 6 0Z"/></svg>
       </button>
     </div>
   </header>
+
+  <div x-show="productMode === 'ring'" class="bg-violet-50 border-b border-violet-100 px-4 py-2 text-xs text-violet-900 shrink-0">
+    <template x-if="project.project.execution_mode === 'ring'">
+      <div class="flex flex-wrap items-center gap-3">
+        <strong x-text="`Ring Goal: ${ringStatus.state}`"></strong>
+        <span x-text="ringStatus.reason || `revision ${ringStatus.state_revision ?? 'unknown'} · seq ${ringStatus.latest_seq ?? 'unknown'}`"></span>
+        <span x-text="ringStatus.observed_at ? `Observed ${ringStatus.observed_at}` : 'No current observation'"></span>
+        <button @click="refreshRingStatus()" class="underline">Refresh</button>
+      </div>
+    </template>
+    <template x-if="project.project.execution_mode !== 'ring' && project.project.access_role === 'owner'">
+      <div class="flex flex-wrap items-center gap-2">
+        <span>Local graph · no Ring Goal bound</span>
+        <input x-model="ringBindingForm.ring_project_id" placeholder="Ring project UUID" class="rounded border border-violet-200 px-2 py-1 min-w-48">
+        <input x-model="ringBindingForm.ring_goal_id" placeholder="Existing Ring Goal UUID" class="rounded border border-violet-200 px-2 py-1 min-w-48">
+        <button @click="bindRingGoal()" class="rounded bg-violet-700 text-white px-3 py-1">Bind existing Goal</button>
+      </div>
+    </template>
+  </div>
 
   <div class="flex-1 flex overflow-hidden" id="graphLayout">
     <!-- Graph -->
@@ -1073,6 +1104,14 @@
 function cairnApp() {
   return {
     view: 'list',
+    authState: 'loading',
+    authMessage: 'Checking Ring session…',
+    loginUrl: '',
+    productMode: 'standalone',
+    userId: '',
+    csrfToken: '',
+    ringStatus: { state: 'UNKNOWN', reason: 'No current observation' },
+    ringBindingForm: { ring_project_id: '', ring_goal_id: '' },
     projects: [],
     project: null,
     selectedProjectId: '',
@@ -1139,6 +1178,26 @@ function cairnApp() {
       window.addEventListener('pointermove', this._panelResizeMove);
       window.addEventListener('pointerup', this._panelResizeStop);
       this.loadLocalPrefs();
+      try {
+        const response = await fetch('/auth/session', { credentials: 'same-origin' });
+        const session = await response.json();
+        if (response.status === 401) {
+          this.authState = 'login';
+          this.authMessage = 'Sign in through Ring to access Cairn projects.';
+          this.loginUrl = session.login_url || '';
+          return;
+        }
+        if (!response.ok) throw new Error(session.detail || 'Ring identity is unavailable');
+        this.productMode = session.mode;
+        this.userId = session.user_id || '';
+        this.csrfToken = session.csrf_token || '';
+        this.loginUrl = session.login_url || '';
+        this.authState = 'ready';
+      } catch (error) {
+        this.authState = 'unknown';
+        this.authMessage = error.message || 'Identity is unavailable';
+        return;
+      }
       await this.loadProjects();
       await this.loadSettings();
       this.startPolling();
@@ -1161,15 +1220,22 @@ function cairnApp() {
 
     async api(method, path, body) {
       const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (this.productMode === 'ring' && method !== 'GET') opts.headers['X-CSRF-Token'] = this.csrfToken;
       if (body) opts.body = JSON.stringify(body);
       const r = await fetch(path, opts);
       if (r.status === 204) return null;
       const data = await r.json();
       if (!r.ok) {
+        if (r.status === 401 && this.productMode === 'ring') {
+          this.authState = 'login';
+          this.authMessage = 'Ring session expired. Sign in again.';
+        }
         let msg = `HTTP ${r.status}`;
         if (typeof data.detail === 'string') msg = data.detail;
         else if (Array.isArray(data.detail)) msg = data.detail.map(e => e.msg).join('; ');
-        throw new Error(msg);
+        const error = new Error(msg);
+        error.status = r.status;
+        throw error;
       }
       return data;
     },
@@ -1259,6 +1325,7 @@ function cairnApp() {
     },
 
     actorName() {
+      if (this.productMode === 'ring') return this.userId;
       return this.localPrefs.actor_name.trim() || 'Human';
     },
 
@@ -1309,15 +1376,15 @@ function cairnApp() {
     },
 
     projectIsActive() {
-      return !this.replay.active && this.project?.project?.status === 'active';
+      return !this.replay.active && this.project?.project?.execution_mode !== 'ring' && this.project?.project?.status === 'active' && (this.productMode !== 'ring' || this.project?.project?.access_role === 'owner');
     },
 
     countProjectsByStatus(status) {
-      return this.projects.filter(project => project.status === status).length;
+      return this.projects.filter(project => project.execution_mode !== 'ring' && project.status === status).length;
     },
 
     hasActiveProjects() {
-      return this.projects.some(project => project.status === 'active');
+      return this.projects.some(project => project.status === 'active' && project.execution_mode !== 'ring' && (this.productMode !== 'ring' || project.access_role === 'owner'));
     },
 
     projectCanWriteHints() {
@@ -1329,7 +1396,14 @@ function cairnApp() {
     },
 
     async loadProjects() {
-      try { this.projects = await this.api('GET', '/projects'); } catch(e) { console.error(e); }
+      try { this.projects = await this.api('GET', '/projects'); }
+      catch(e) {
+        this.projects = [];
+        if (this.productMode === 'ring' && this.authState !== 'login') {
+          this.authState = 'unknown';
+          this.authMessage = `Ring project view is UNKNOWN: ${e.message}`;
+        } else console.error(e);
+      }
     },
 
     rememberProjectListScroll() {
@@ -1585,7 +1659,53 @@ function cairnApp() {
     },
 
     async loadProject(id) {
-      try { this.project = await this.api('GET', `/projects/${id}`); } catch(e) { this.showToast(e.message, 'error'); }
+      try {
+        this.project = await this.api('GET', `/projects/${id}`);
+        if (this.project.project.execution_mode === 'ring') await this.refreshRingStatus();
+        else this.ringStatus = { state: 'UNKNOWN', reason: 'No Ring binding' };
+        if (!this.project) return false;
+        return true;
+      } catch(e) {
+        if (this.productMode === 'ring' && [401, 403, 404].includes(e.status)) {
+          this.project = null;
+          this.selectedProjectId = '';
+          this.view = 'list';
+          this.projects = [];
+          location.hash = '/';
+          this.showToast('Project access is unavailable', 'error');
+        } else if (this.project?.project?.execution_mode === 'ring') {
+          this.ringStatus = { state: 'UNKNOWN', reason: e.message };
+        } else this.showToast(e.message, 'error');
+        return false;
+      }
+    },
+
+    async refreshRingStatus() {
+      if (!this.selectedProjectId || this.project?.project?.execution_mode !== 'ring') return;
+      try {
+        this.ringStatus = await this.api('GET', `/projects/${this.selectedProjectId}/ring-status`);
+      } catch (error) {
+        if ([401, 403, 404].includes(error.status)) {
+          this.project = null;
+          this.selectedProjectId = '';
+          this.view = 'list';
+          this.projects = [];
+          location.hash = '/';
+          return;
+        }
+        this.ringStatus = { state: 'UNKNOWN', reason: error.message, observed_at: null };
+      }
+    },
+
+    async bindRingGoal() {
+      if (!this.selectedProjectId) return;
+      try {
+        await this.api('POST', `/projects/${this.selectedProjectId}/ring-binding`, this.ringBindingForm);
+        this.ringBindingForm = { ring_project_id: '', ring_goal_id: '' };
+        await this.loadProject(this.selectedProjectId);
+        await this.loadProjects();
+        this.showToast('Existing Ring Goal bound');
+      } catch (error) { this.showToast(error.message, 'error'); }
     },
 
     async toggleProjectStop() {
@@ -1634,7 +1754,7 @@ function cairnApp() {
     },
 
     async stopAllActiveProjects() {
-      const activeProjects = this.projects.filter(project => project.status === 'active');
+      const activeProjects = this.projects.filter(project => project.status === 'active' && project.execution_mode !== 'ring' && (this.productMode !== 'ring' || project.access_role === 'owner'));
       if (activeProjects.length === 0 || this.isStoppingAllProjects) return;
       this.isStoppingAllProjects = true;
       try {
@@ -2067,6 +2187,7 @@ function cairnApp() {
     },
 
     async openProject(id) {
+      const previousId = this.selectedProjectId;
       if (this.replay.active) {
         this.stopReplayTimer();
         this.replay.active = false;
@@ -2084,7 +2205,11 @@ function cairnApp() {
       this.selectedNode = null;
       this.selectedFacts = [];
       this.selectedTimelineEntryId = null;
-      await this.loadProject(id);
+      if (!await this.loadProject(id)) {
+        if (this.project) this.selectedProjectId = previousId;
+        else location.hash = '/';
+        return;
+      }
       this.view = 'graph';
       if (location.hash !== `#/projects/${id}`) location.hash = `/projects/${id}`;
       this.$nextTick(() => {

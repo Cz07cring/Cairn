@@ -79,6 +79,23 @@ CREATE TABLE IF NOT EXISTS scoped_counters (
     value INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (project_id, kind)
 );
+
+CREATE TABLE IF NOT EXISTS project_acl (
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'viewer')),
+    PRIMARY KEY (project_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS ring_bindings (
+    cairn_project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+    ring_project_id TEXT NOT NULL,
+    ring_goal_id TEXT NOT NULL UNIQUE,
+    bound_by TEXT NOT NULL,
+    bound_at TEXT NOT NULL,
+    state_revision INTEGER NOT NULL CHECK (state_revision > 0),
+    latest_seq TEXT NOT NULL
+);
 """
 
 

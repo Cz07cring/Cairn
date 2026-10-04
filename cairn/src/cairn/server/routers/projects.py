@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException
+import sqlite3
+
+from fastapi import APIRouter, HTTPException, Request
 
 from cairn.server.db import get_conn
 from cairn.server.models import (
@@ -10,10 +12,13 @@ from cairn.server.models import (
     Intent,
     ProjectDetail,
     ProjectMeta,
+    ProjectMemberRequest,
     ProjectSummary,
     ReopenRequest,
     ReopenResponse,
     ReasonClaimRequest,
+    RingBindingRequest,
+    RingBindingResponse,
     UpdateProjectTitleRequest,
     UpdateProjectStatusRequest,
 )
@@ -37,25 +42,68 @@ from cairn.server.services import (
     validate_facts_exist,
     validate_goal_not_in_sources,
 )
+from cairn.server.integration.bindings import (
+    binding_for,
+    canonical_uuid,
+    project_role,
+    require_project_access,
+    require_unbound,
+    ring_status,
+    visible_goal,
+    verified_goal,
+)
+from cairn.server.integration.identity import product_mode
 
 router = APIRouter(tags=["projects"])
 
 
 @router.get("/projects", response_model=list[ProjectSummary])
-def list_projects():
+def list_projects(request: Request):
     with get_conn() as conn:
         expire_workers(conn)
         expire_reason_leases(conn)
-        rows = conn.execute("""
+        query = """
             SELECT p.*,
+                CASE WHEN b.cairn_project_id IS NULL THEN 'standalone' ELSE 'ring' END AS execution_mode,
+                b.ring_project_id, b.ring_goal_id,
+                a.role AS access_role,
                 (SELECT COUNT(*) FROM facts WHERE project_id = p.id) AS fact_count,
                 (SELECT COUNT(*) FROM intents WHERE project_id = p.id) AS intent_count,
                 (SELECT COUNT(*) FROM intents WHERE project_id = p.id AND concluded_at IS NULL AND worker IS NOT NULL) AS working_intent_count,
                 (SELECT COUNT(*) FROM intents WHERE project_id = p.id AND concluded_at IS NULL AND worker IS NULL) AS unclaimed_intent_count,
                 (SELECT COUNT(*) FROM hints WHERE project_id = p.id) AS hint_count
             FROM projects p
+            LEFT JOIN ring_bindings b ON b.cairn_project_id = p.id
+            LEFT JOIN project_acl a ON a.project_id = p.id AND a.user_id = ?
+            {filter_clause}
             ORDER BY p.created_at
-        """).fetchall()
+        """
+        if product_mode():
+            rows = conn.execute(
+                query.format(filter_clause="WHERE a.role IS NOT NULL"),
+                (request.state.ring_principal["user_id"],),
+            ).fetchall()
+        else:
+            rows = conn.execute(query.format(filter_clause=""), ("",)).fetchall()
+        if product_mode():
+            visible = []
+            for row in rows:
+                if row["execution_mode"] == "ring":
+                    if row["ring_project_id"] not in request.state.ring_principal["project_ids"]:
+                        continue
+                    try:
+                        visible_goal(
+                            request.state.ring_config,
+                            request.state.ring_cookie,
+                            row["ring_project_id"],
+                            row["ring_goal_id"],
+                        )
+                    except HTTPException as exc:
+                        if exc.status_code == 404:
+                            continue
+                        raise
+                visible.append(row)
+            rows = visible
         return [
             ProjectSummary(
                 id=row["id"],
@@ -64,6 +112,8 @@ def list_projects():
                 bootstrap_enabled=bool(row["bootstrap_enabled"]),
                 created_at=row["created_at"],
                 reason=project_reason_from_row(row),
+                execution_mode=row["execution_mode"],
+                access_role=row["access_role"] if product_mode() else None,
                 fact_count=row["fact_count"],
                 intent_count=row["intent_count"],
                 working_intent_count=row["working_intent_count"],
@@ -75,15 +125,20 @@ def list_projects():
 
 
 @router.post("/projects", response_model=ProjectDetail, status_code=201)
-def create_project(body: CreateProjectRequest):
+def create_project(body: CreateProjectRequest, request: Request):
     with get_conn() as conn:
         pid = next_project_id(conn)
         now = utcnow()
 
         conn.execute(
             "INSERT INTO projects (id, title, status, bootstrap_enabled, created_at) VALUES (?, ?, 'active', ?, ?)",
-            (pid, body.title, body.bootstrap_enabled, now),
+            (pid, body.title, False if product_mode() else body.bootstrap_enabled, now),
         )
+        if product_mode():
+            conn.execute(
+                "INSERT INTO project_acl (project_id, user_id, role) VALUES (?, ?, 'owner')",
+                (pid, request.state.ring_principal["user_id"]),
+            )
         conn.execute(
             "INSERT INTO facts (id, project_id, description) VALUES (?, ?, ?)",
             ("origin", pid, body.origin),
@@ -99,18 +154,19 @@ def create_project(body: CreateProjectRequest):
                 hid = next_hint_id(conn, pid)
                 conn.execute(
                     "INSERT INTO hints (id, project_id, content, creator, created_at) VALUES (?, ?, ?, ?, ?)",
-                    (hid, pid, h.content, h.creator, now),
+                    (hid, pid, h.content, request.state.ring_principal["user_id"] if product_mode() else h.creator, now),
                 )
-                hints.append(Hint(id=hid, content=h.content, creator=h.creator, created_at=now))
+                hints.append(Hint(id=hid, content=h.content, creator=request.state.ring_principal["user_id"] if product_mode() else h.creator, created_at=now))
 
         return ProjectDetail(
             project=ProjectMeta(
                 id=pid,
                 title=body.title,
                 status="active",
-                bootstrap_enabled=body.bootstrap_enabled,
+                bootstrap_enabled=False if product_mode() else body.bootstrap_enabled,
                 created_at=now,
                 reason=None,
+                access_role="owner" if product_mode() else None,
             ),
             facts=[
                 Fact(id="origin", description=body.origin),
@@ -121,8 +177,128 @@ def create_project(body: CreateProjectRequest):
         )
 
 
+@router.post("/projects/{project_id}/ring-binding", response_model=RingBindingResponse)
+def bind_ring_goal(project_id: str, body: RingBindingRequest, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Ring binding is unavailable in standalone mode")
+    ring_project_id = canonical_uuid(body.ring_project_id)
+    ring_goal_id = canonical_uuid(body.ring_goal_id)
+    principal = request.state.ring_principal
+    if ring_project_id not in principal["project_ids"]:
+        raise HTTPException(404, "Ring project not found")
+    goal, snapshot = verified_goal(
+        request.state.ring_config, request.state.ring_cookie, ring_project_id, ring_goal_id
+    )
+    with get_conn() as conn:
+        require_project_access(conn, project_id, principal["user_id"], owner=True)
+        row = get_project_or_404(conn, project_id)
+        existing = binding_for(conn, project_id)
+        if existing:
+            if existing["ring_project_id"] != ring_project_id or existing["ring_goal_id"] != ring_goal_id:
+                raise HTTPException(409, "Project already has a different Ring binding")
+            return RingBindingResponse(**dict(existing))
+        if row["status"] != "active" or row["reason_worker"] is not None:
+            raise HTTPException(409, "Project must be active and idle before binding")
+        busy = conn.execute(
+            "SELECT 1 FROM intents WHERE project_id = ? AND worker IS NOT NULL AND concluded_at IS NULL LIMIT 1",
+            (project_id,),
+        ).fetchone()
+        if busy:
+            raise HTTPException(409, "Project has an active Cairn worker")
+        now = utcnow()
+        try:
+            conn.execute(
+                """INSERT INTO ring_bindings
+                   (cairn_project_id, ring_project_id, ring_goal_id, bound_by, bound_at, state_revision, latest_seq)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (project_id, ring_project_id, ring_goal_id, principal["user_id"], now, goal["state_revision"], snapshot["latest_seq"]),
+            )
+        except sqlite3.IntegrityError as exc:
+            raise HTTPException(409, "Ring Goal is already bound") from exc
+        conn.execute("UPDATE projects SET bootstrap_enabled = 0 WHERE id = ?", (project_id,))
+        return RingBindingResponse(
+            cairn_project_id=project_id,
+            ring_project_id=ring_project_id,
+            ring_goal_id=ring_goal_id,
+            bound_by=principal["user_id"],
+            bound_at=now,
+            state_revision=goal["state_revision"],
+            latest_seq=snapshot["latest_seq"],
+        )
+
+
+@router.get("/projects/{project_id}/ring-status")
+def get_ring_status(project_id: str, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Ring status is unavailable in standalone mode")
+    with get_conn() as conn:
+        require_project_access(conn, project_id, request.state.ring_principal["user_id"])
+        binding = binding_for(conn, project_id)
+        if binding is None:
+            raise HTTPException(404, "Project has no Ring binding")
+        if binding["ring_project_id"] not in request.state.ring_principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        return {
+            "ring_project_id": binding["ring_project_id"],
+            "ring_goal_id": binding["ring_goal_id"],
+            **ring_status(request.state.ring_config, request.state.ring_cookie, binding),
+        }
+
+
+@router.get("/projects/{project_id}/members")
+def list_project_members(project_id: str, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Project members are unavailable in standalone mode")
+    with get_conn() as conn:
+        require_project_access(conn, project_id, request.state.ring_principal["user_id"], owner=True)
+        return [dict(row) for row in conn.execute(
+            "SELECT user_id, role FROM project_acl WHERE project_id = ? ORDER BY user_id",
+            (project_id,),
+        ).fetchall()]
+
+
+@router.put("/projects/{project_id}/members/{user_id}")
+def set_project_member(project_id: str, user_id: str, body: ProjectMemberRequest, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Project members are unavailable in standalone mode")
+    if not user_id or len(user_id) > 200:
+        raise HTTPException(422, "Invalid user ID")
+    with get_conn() as conn:
+        require_project_access(conn, project_id, request.state.ring_principal["user_id"], owner=True)
+        existing = conn.execute(
+            "SELECT role FROM project_acl WHERE project_id = ? AND user_id = ?",
+            (project_id, user_id),
+        ).fetchone()
+        if existing and existing["role"] == "owner":
+            raise HTTPException(409, "Project owner cannot be changed")
+        conn.execute(
+            """INSERT INTO project_acl (project_id, user_id, role) VALUES (?, ?, ?)
+               ON CONFLICT(project_id, user_id) DO UPDATE SET role = excluded.role""",
+            (project_id, user_id, body.role),
+        )
+        return {"user_id": user_id, "role": body.role}
+
+
+@router.delete("/projects/{project_id}/members/{user_id}", status_code=204)
+def remove_project_member(project_id: str, user_id: str, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Project members are unavailable in standalone mode")
+    with get_conn() as conn:
+        require_project_access(conn, project_id, request.state.ring_principal["user_id"], owner=True)
+        row = conn.execute(
+            "SELECT role FROM project_acl WHERE project_id = ? AND user_id = ?",
+            (project_id, user_id),
+        ).fetchone()
+        if row and row["role"] == "owner":
+            raise HTTPException(409, "Project owner cannot be removed")
+        conn.execute(
+            "DELETE FROM project_acl WHERE project_id = ? AND user_id = ?",
+            (project_id, user_id),
+        )
+
+
 @router.get("/projects/{project_id}", response_model=ProjectDetail)
-def get_project(project_id: str):
+def get_project(project_id: str, request: Request):
     with get_conn() as conn:
         expire_workers(conn, project_id)
         expire_reason_leases(conn, project_id)
@@ -137,7 +313,9 @@ def get_project(project_id: str):
         ).fetchall()
 
         return ProjectDetail(
-            project=project_meta_from_row(row),
+            project=project_meta_from_row(row).model_copy(
+                update={"access_role": project_role(conn, project_id, request.state.ring_principal["user_id"])}
+            ) if product_mode() else project_meta_from_row(row),
             facts=[Fact(**dict(f)) for f in facts],
             intents=build_intents(conn, project_id),
             hints=[Hint(**dict(h)) for h in hints],
@@ -148,24 +326,29 @@ def get_project(project_id: str):
 def delete_project(project_id: str):
     with get_conn() as conn:
         get_project_or_404(conn, project_id)
+        require_unbound(conn, project_id)
         conn.execute("DELETE FROM projects WHERE id = ?", (project_id,))
 
 
 @router.put("/projects/{project_id}/title", response_model=ProjectMeta)
-def update_project_title(project_id: str, body: UpdateProjectTitleRequest):
+def update_project_title(project_id: str, body: UpdateProjectTitleRequest, request: Request):
     with get_conn() as conn:
         get_project_or_404(conn, project_id)
         conn.execute(
             "UPDATE projects SET title = ? WHERE id = ?",
             (body.title, project_id),
         )
-        updated = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
-        return project_meta_from_row(updated)
+        updated = get_project_or_404(conn, project_id)
+        meta = project_meta_from_row(updated)
+        if product_mode():
+            meta.access_role = project_role(conn, project_id, request.state.ring_principal["user_id"])
+        return meta
 
 
 @router.put("/projects/{project_id}/status", response_model=ProjectMeta)
 def update_project_status(project_id: str, body: UpdateProjectStatusRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         expire_reason_leases(conn, project_id)
         row = get_project_or_404(conn, project_id)
         current_status = row["status"]
@@ -191,6 +374,7 @@ def update_project_status(project_id: str, body: UpdateProjectStatusRequest):
 @router.post("/projects/{project_id}/reason/claim", response_model=ProjectMeta)
 def claim_project_reason(project_id: str, body: ReasonClaimRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         expire_reason_leases(conn, project_id)
         row = get_project_or_404(conn, project_id)
@@ -219,6 +403,7 @@ def claim_project_reason(project_id: str, body: ReasonClaimRequest):
 @router.post("/projects/{project_id}/reason/heartbeat", response_model=ProjectMeta)
 def heartbeat_project_reason(project_id: str, body: HeartbeatRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         expire_reason_leases(conn, project_id)
         row = get_project_or_404(conn, project_id)
@@ -240,6 +425,7 @@ def heartbeat_project_reason(project_id: str, body: HeartbeatRequest):
 @router.post("/projects/{project_id}/reason/release", response_model=ProjectMeta)
 def release_project_reason(project_id: str, body: HeartbeatRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         expire_reason_leases(conn, project_id)
         row = get_project_or_404(conn, project_id)
@@ -257,6 +443,7 @@ def release_project_reason(project_id: str, body: HeartbeatRequest):
 @router.post("/projects/{project_id}/complete", response_model=Intent)
 def complete_project(project_id: str, body: CompleteRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         expire_reason_leases(conn, project_id)
         validate_facts_exist(conn, project_id, body.from_)
@@ -303,6 +490,7 @@ def complete_project(project_id: str, body: CompleteRequest):
 @router.post("/projects/{project_id}/reopen", response_model=ReopenResponse)
 def reopen_project(project_id: str, body: ReopenRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         expire_reason_leases(conn, project_id)
         check_project_completed(conn, project_id)
         completion = get_completion_intent_or_409(conn, project_id)

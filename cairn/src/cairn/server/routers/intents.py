@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from cairn.server.db import get_conn
+from cairn.server.integration.bindings import require_unbound
 from cairn.server.models import (
     ConcludeRequest,
     ConcludeResponse,
@@ -32,6 +33,7 @@ router = APIRouter(tags=["intents"])
 )
 def create_intent(project_id: str, body: CreateIntentRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         validate_facts_exist(conn, project_id, body.from_)
         validate_goal_not_in_sources(body.from_)
@@ -77,6 +79,7 @@ def create_intent(project_id: str, body: CreateIntentRequest):
 )
 def heartbeat(project_id: str, intent_id: str, body: HeartbeatRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         get_claimable_open_intent_or_404(conn, project_id, intent_id, body.worker)
 
@@ -99,6 +102,7 @@ def heartbeat(project_id: str, intent_id: str, body: HeartbeatRequest):
 )
 def release(project_id: str, intent_id: str, body: HeartbeatRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         row = get_releasable_open_intent_or_404(conn, project_id, intent_id, body.worker)
 
@@ -121,6 +125,7 @@ def release(project_id: str, intent_id: str, body: HeartbeatRequest):
 )
 def conclude(project_id: str, intent_id: str, body: ConcludeRequest):
     with get_conn() as conn:
+        require_unbound(conn, project_id)
         check_project_active(conn, project_id)
         get_claimable_open_intent_or_404(conn, project_id, intent_id, body.worker)
 

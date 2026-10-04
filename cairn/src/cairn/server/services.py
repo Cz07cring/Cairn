@@ -49,7 +49,13 @@ def next_hint_id(conn: sqlite3.Connection, project_id: str) -> str:
 
 
 def get_project_or_404(conn: sqlite3.Connection, project_id: str) -> sqlite3.Row:
-    row = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+    row = conn.execute(
+        """SELECT p.*, CASE WHEN EXISTS (
+             SELECT 1 FROM ring_bindings b WHERE b.cairn_project_id = p.id
+           ) THEN 'ring' ELSE 'standalone' END AS execution_mode
+           FROM projects p WHERE p.id = ?""",
+        (project_id,),
+    ).fetchone()
     if row is None:
         raise HTTPException(404, "Project not found")
     return row
@@ -202,6 +208,7 @@ def project_meta_from_row(row: sqlite3.Row) -> ProjectMeta:
         bootstrap_enabled=bool(row["bootstrap_enabled"]),
         created_at=row["created_at"],
         reason=project_reason_from_row(row),
+        execution_mode=row["execution_mode"] if "execution_mode" in row.keys() else "standalone",
     )
 
 
