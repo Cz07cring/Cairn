@@ -1,10 +1,12 @@
 # Cairn fork × Ringharness：隔离软件仓库纵向开发计划
 
-日期：2026-10-04（Asia/Shanghai）。状态：**方案，未实施、未联调、未验收**。本次只读核对的 Cairn HEAD 为 `8e7e0ea67552383851dfcabfba0c4e9c8d007878`，Ringharness HEAD 为 `f61df68049c75ec5bd6bd279f51b196e89722031`；Ringharness 工作树有在途改动，因此下述“已存在”只指本次看到的源码，不代表已部署实例可用。Cairn 与 Ringharness 的生产身份、目标、运行数据均未探测。
+日期：2026-10-04（Asia/Shanghai）。状态：**分阶段实施中，未联调、未验收**。最初只读核对的 Cairn HEAD 为 `8e7e0ea67552383851dfcabfba0c4e9c8d007878`，Ringharness HEAD 为 `f61df68049c75ec5bd6bd279f51b196e89722031`；Ringharness 工作树有在途改动，因此下述“已存在”只指当时看到的源码，不代表已部署实例可用。Cairn 与 Ringharness 的生产身份、目标、运行数据均未探测。
 
-执行更新（2026-10-04 23:30，Asia/Shanghai）：方案编写后的 Cairn fork 分支 `ringharness-integration` 已提交 B1 产品入口/只读绑定与 B2 人工完整 `PlanCreate` 候选桥接，当前提交为 `c20c6a1`。这些提交只做过窄范围语法、导入和静态核对，尚未完成真实浏览器、Ring Control、Temporal、Broker、审计或恢复的端到端验收。B2 的公开候选不会自动成为 `PUBLISHED` Plan；B2b/B2c 先解决零工具 PLAN 输入与发布接线。B3/B4 和最终 E2E 未启动。上段“未实施”记录的是本方案最初编写时点，不代表此处更新后的代码状态。
+执行更新（2026-10-04 23:30，Asia/Shanghai）：方案编写后的 Cairn fork 分支 `ringharness-integration` 已提交 B1 产品入口/只读绑定与 B2 人工完整 `PlanCreate` 候选桥接，当时提交为 `c20c6a1`。这些提交只做过窄范围语法、导入和静态核对，尚未完成真实浏览器、Ring Control、Temporal、Broker、审计或恢复的端到端验收。B2 的公开候选不会自动成为 `PUBLISHED` Plan；B2b/B2c 先解决零工具 PLAN 输入与发布接线。B3/B4 和最终 E2E 未启动。
 
 执行更新（2026-10-04 23:41，Asia/Shanghai）：C1 Cairn 不可变图快照 API 已合入，参见 [PLAN 消费缝](plan-consumption-seam.md) 和 [固定融合 E2E 场景](fusion-e2e-scenario.md)。Ring 侧 R1 输入登记/准入、R2 Runner 消费、R3 Temporal 待输入唤醒已作为[待认领 Issue #81](https://github.com/Cz07cring/ringharness/issues/81) 登记；现行路径所有者尚未确认释放。C1 只有本地图快照与受权回读，尚无 Ring PlanInput 调用方；C2 页面入口在开发。B3 决策门继续关闭，最终融合 E2E 的各层仍为 `not-run`。
+
+执行更新（2026-10-04 23:48，Asia/Shanghai）：C2 页面入口在 `335a704` 合入，展示候选、已封存本地快照、发布与 DONE 的不同状态，并提供按摘要回读。审查发现写入回包丢失后刷新页面会丢失原请求，C2a 正在补跨刷新 UNKNOWN 恢复；C2/C2a 均尚未做真实浏览器验证。C3 向 Ring 提交 PlanInput、C4 受控启动与重新规划均依赖 R1/R2/R3，尚未启动。B3 决策门保持关闭；全部融合 E2E 层仍为 `not-run`。
 
 ## 结论和范围
 
