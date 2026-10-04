@@ -139,3 +139,32 @@ scope 返回封存的**原始规范 JSON 字节**，`X-Content-Digest` 给出摘
 快照只证明 Cairn 本地图字节与来源关系，不证明 Fact 是可信 Evidence。
 此批不调用 Ring PlanInput 登记接口，也不启动 PLAN、发布 Plan 或创建 Task。
 Ring 侧仍须在登记与 PLAN attempt 绑定时重新核对 Goal、候选、权限和摘要。
+
+## C1b：按 Intent 枚举本人已封存的请求映射
+
+`GET /projects/{id}/plan-snapshot-requests?intent_id=...` 是只读找回入口：关闭
+标签后 sessionStorage 消失时，本人仍可按 Intent 列出自己此前封存的 C1a 请求
+映射。仅当前登录主体在本地是项目 owner、项目有当前绑定且其 Ring project
+scope 仍包含该绑定时可用；非成员或 scope 外用户 404，viewer 403，standalone
+模式 404。只返回本人（`actor` 等于当前用户）的行，跨用户记录不可见。
+
+每条返回 `request_fingerprint`、`snapshot_digest`、`intent_id`、`created_at`、
+`graph_digest`、`candidate_plan_id`、排序后的 Fact/Hint ID 列表。不返回图文字、
+`selected_text`、规范 JSON 正文、cookie 或密钥。列表是本地 SEALED 证明，不
+查询 Ring，也不把本地 SEALED 当作 Ring STAGED/PUBLISHED；Ring Goal 暂时不可读
+时列表仍可用（入口只实时核对会话与 scope）。
+
+排序按 `(created_at, request_fingerprint)` 从旧到新，键集分页：
+`limit`（默认 50，最大 100，越界 422）、不透明 `next_cursor` 与显式
+`truncated`。非法 cursor 422。为防止静默丢旧记录，若该用户在本项目存在任何
+缺少 `intent_id`/`created_at` 回填的映射行，整个列表失败关闭 503，而不是跳过
+该行。
+
+SQLite 升级：`ring_plan_snapshot_requests` 增加可空 `intent_id`、`created_at`
+列并建排序索引；既有行从 `request_json` 的 `selected_intent_id` 与对应快照的
+`created_at` 回填。POST 封存时同事务写入这两列。回填不可信（`request_json`
+损坏、快照缺失）的行保持 NULL，读取时 503 失败关闭。读取路径逐行校验：请求
+JSON 重新通过当前请求模型、重算作用域指纹等于 `request_fingerprint`、快照
+字节摘要等于 `snapshot_digest`、请求与快照的 Intent/图/候选/Fact/Hint/scope
+互相一致；任何篡改或不一致都 503，不回退到当前态猜测。`intent_id` 不存在的
+Intent 404。

@@ -1,7 +1,8 @@
+import base64
 import json
 import sqlite3
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import Response
 
 from cairn.server.db import get_conn
@@ -138,21 +139,22 @@ def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Re
             != (project_id, ring_project_id, ring_goal_id, actor)
         ):
             raise HTTPException(409, "Plan snapshot digest collision")
+        now = utcnow()
         if existing is None:
             conn.execute(
                 """INSERT INTO ring_plan_snapshots
                    (digest, project_id, ring_project_id, ring_goal_id, created_by, canonical_json, created_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (snapshot_digest, project_id, ring_project_id, ring_goal_id,
-                 actor, raw, utcnow()),
+                 actor, raw, now),
             )
         conn.execute(
             """INSERT INTO ring_plan_snapshot_requests
                (request_fingerprint, project_id, ring_project_id, ring_goal_id,
-                actor, request_json, snapshot_digest)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                actor, request_json, snapshot_digest, intent_id, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (fingerprint, project_id, ring_project_id, ring_goal_id, actor,
-             request_json, snapshot_digest),
+             request_json, snapshot_digest, body.selected_intent_id, now),
         )
     return {"digest": snapshot_digest, "snapshot": decode_snapshot(raw, snapshot_digest)}
 
@@ -179,6 +181,133 @@ def get_plan_snapshot(project_id: str, snapshot_digest: str, request: Request):
     decode_snapshot(raw, snapshot_digest)
     return Response(content=raw, media_type="application/json",
                     headers={"X-Content-Digest": snapshot_digest})
+
+
+DEFAULT_SNAPSHOT_REQUEST_PAGE_LIMIT = 50
+MAX_SNAPSHOT_REQUEST_PAGE_LIMIT = 100
+
+
+def _snapshot_request_cursor(created_at: str, fingerprint: str) -> str:
+    return base64.urlsafe_b64encode(
+        canonical([created_at, fingerprint]).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+
+
+def _decode_snapshot_request_cursor(cursor: str) -> tuple[str, str]:
+    try:
+        position = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+    except ValueError:
+        raise HTTPException(422, "Plan snapshot request cursor is invalid") from None
+    if (not isinstance(position, list) or len(position) != 2
+            or not all(isinstance(item, str) and item for item in position)):
+        raise HTTPException(422, "Plan snapshot request cursor is invalid")
+    return position[0], position[1]
+
+
+@router.get("/projects/{project_id}/plan-snapshot-requests")
+def list_plan_snapshot_requests(
+    project_id: str,
+    request: Request,
+    intent_id: str,
+    cursor: str | None = None,
+    limit: int = Query(DEFAULT_SNAPSHOT_REQUEST_PAGE_LIMIT,
+                       ge=1, le=MAX_SNAPSHOT_REQUEST_PAGE_LIMIT),
+):
+    """List the caller's own sealed snapshot request mappings for one Intent.
+
+    Read-only over local SQLite; no Ring call happens here, so the listing stays
+    available while Goal reads are unavailable. A locally SEALED mapping says
+    nothing about Ring STAGED/PUBLISHED state.
+    """
+    if not product_mode():
+        raise HTTPException(404, "Ring plan snapshot requests are unavailable")
+    principal = request.state.ring_principal
+    actor = principal["user_id"]
+    if not intent_id or len(intent_id) > 100:
+        raise HTTPException(422, "intent_id is invalid")
+    position = None if cursor is None else _decode_snapshot_request_cursor(cursor)
+    with get_conn() as conn:
+        if project_role(conn, project_id, actor) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if binding is None or binding["ring_project_id"] not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        if conn.execute(
+            "SELECT 1 FROM intents WHERE project_id=? AND id=?", (project_id, intent_id)
+        ).fetchone() is None:
+            raise HTTPException(404, "Intent not found")
+        if conn.execute(
+            """SELECT 1 FROM ring_plan_snapshot_requests
+               WHERE project_id=? AND actor=? AND (intent_id IS NULL OR created_at IS NULL) LIMIT 1""",
+            (project_id, actor),
+        ).fetchone() is not None:
+            # A mapping that cannot be attributed to an Intent or a position in
+            # the timeline could belong to this Intent; listing without it would
+            # silently drop an old record, so fail closed instead.
+            raise HTTPException(503, "Stored plan snapshot request lacks its backfill")
+        sql = """SELECT r.request_fingerprint, r.request_json, r.snapshot_digest,
+                        r.intent_id, r.created_at,
+                        s.project_id AS snapshot_project_id,
+                        s.ring_project_id AS snapshot_ring_project_id,
+                        s.ring_goal_id AS snapshot_ring_goal_id,
+                        s.created_by AS snapshot_actor,
+                        s.canonical_json
+                 FROM ring_plan_snapshot_requests r
+                 JOIN ring_plan_snapshots s ON s.digest = r.snapshot_digest
+                 WHERE r.project_id=? AND r.actor=? AND r.intent_id=?"""
+        params: list[object] = [project_id, actor, intent_id]
+        if position is not None:
+            sql += " AND (r.created_at > ? OR (r.created_at = ? AND r.request_fingerprint > ?))"
+            params.extend([position[0], position[0], position[1]])
+        sql += " ORDER BY r.created_at, r.request_fingerprint LIMIT ?"
+        params.append(limit + 1)
+        rows = conn.execute(sql, params).fetchall()
+    truncated = len(rows) > limit
+    scope = (project_id, binding["ring_project_id"], binding["ring_goal_id"], actor)
+    items: list[dict[str, object]] = []
+    for row in rows[:limit]:
+        if row["intent_id"] is None or row["created_at"] is None:
+            raise HTTPException(503, "Stored plan snapshot request lacks its backfill")
+        if (tuple(row[key] for key in ("snapshot_project_id", "snapshot_ring_project_id",
+                                       "snapshot_ring_goal_id", "snapshot_actor")) != scope
+                or row["intent_id"] != intent_id):
+            raise HTTPException(503, "Stored plan snapshot request is inconsistent")
+        try:
+            body = PlanSnapshotRequest.model_validate_json(bytes(row["request_json"]))
+        except Exception:
+            raise HTTPException(503, "Stored plan snapshot request is unreadable") from None
+        expected = digest({"schema": "CairnPlanSnapshotRequest/v1", "project_id": project_id,
+                           "ring_project_id": binding["ring_project_id"],
+                           "ring_goal_id": binding["ring_goal_id"], "actor": actor,
+                           "body": body.model_dump()})
+        if expected != row["request_fingerprint"]:
+            raise HTTPException(503, "Stored plan snapshot request fingerprint is inconsistent")
+        snapshot = decode_snapshot(bytes(row["canonical_json"]), row["snapshot_digest"])
+        if (snapshot.get("selected_intent_id") != body.selected_intent_id
+                or snapshot.get("graph_digest") != body.graph_digest
+                or snapshot.get("candidate_plan_id") != body.candidate_plan_id
+                or sorted(snapshot.get("source_fact_ids", [])) != sorted(body.fact_ids)
+                or sorted(snapshot.get("hint_ids", [])) != sorted(body.hint_ids)
+                or snapshot.get("cairn_project_id") != project_id
+                or (snapshot.get("ring_project_id"), snapshot.get("ring_goal_id"),
+                    snapshot.get("created_by")) != (binding["ring_project_id"],
+                                                    binding["ring_goal_id"], actor)):
+            raise HTTPException(503, "Stored plan snapshot request is inconsistent")
+        items.append({
+            "request_fingerprint": row["request_fingerprint"],
+            "snapshot_digest": row["snapshot_digest"],
+            "intent_id": row["intent_id"],
+            "created_at": row["created_at"],
+            "graph_digest": body.graph_digest,
+            "candidate_plan_id": body.candidate_plan_id,
+            "fact_ids": sorted(body.fact_ids),
+            "hint_ids": sorted(body.hint_ids),
+        })
+    next_cursor = None
+    if truncated and items:
+        next_cursor = _snapshot_request_cursor(rows[limit - 1]["created_at"],
+                                               rows[limit - 1]["request_fingerprint"])
+    return {"items": items, "next_cursor": next_cursor, "truncated": truncated, "limit": limit}
 
 
 @router.post(

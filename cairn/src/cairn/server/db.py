@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -134,7 +135,9 @@ CREATE TABLE IF NOT EXISTS ring_plan_snapshot_requests (
     ring_goal_id TEXT NOT NULL,
     actor TEXT NOT NULL,
     request_json BLOB NOT NULL,
-    snapshot_digest TEXT NOT NULL REFERENCES ring_plan_snapshots(digest) ON DELETE CASCADE
+    snapshot_digest TEXT NOT NULL REFERENCES ring_plan_snapshots(digest) ON DELETE CASCADE,
+    intent_id TEXT,
+    created_at TEXT
 );
 """
 
@@ -148,6 +151,7 @@ def configure(path: Path) -> None:
     with get_conn() as conn:
         conn.executescript(SCHEMA)
         _ensure_project_columns(conn)
+        _ensure_snapshot_request_columns(conn)
 
 
 def _ensure_project_columns(conn: sqlite3.Connection) -> None:
@@ -158,6 +162,47 @@ def _ensure_project_columns(conn: sqlite3.Connection) -> None:
             conn.execute(
                 "UPDATE projects SET bootstrap_enabled = CASE WHEN bootstrap_mode = 'disabled' THEN 0 ELSE 1 END"
             )
+
+
+def _ensure_snapshot_request_columns(conn: sqlite3.Connection) -> None:
+    """Add the per-Intent enumeration columns and backfill them from sealed request_json.
+
+    Rows whose stored request cannot be trusted are left NULL and fail closed at
+    read time; the migration never fabricates an Intent or timestamp.
+    """
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(ring_plan_snapshot_requests)")}
+    if "intent_id" not in columns:
+        conn.execute("ALTER TABLE ring_plan_snapshot_requests ADD COLUMN intent_id TEXT")
+    if "created_at" not in columns:
+        conn.execute("ALTER TABLE ring_plan_snapshot_requests ADD COLUMN created_at TEXT")
+    pending = conn.execute(
+        """SELECT request_fingerprint, request_json, snapshot_digest
+           FROM ring_plan_snapshot_requests
+           WHERE intent_id IS NULL OR created_at IS NULL"""
+    ).fetchall()
+    for row in pending:
+        try:
+            body = json.loads(bytes(row["request_json"]))
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(body, dict):
+            continue
+        intent_id = body.get("selected_intent_id")
+        if not isinstance(intent_id, str) or not intent_id:
+            continue
+        snapshot = conn.execute(
+            "SELECT created_at FROM ring_plan_snapshots WHERE digest=?", (row["snapshot_digest"],)
+        ).fetchone()
+        if snapshot is None or not isinstance(snapshot["created_at"], str):
+            continue
+        conn.execute(
+            "UPDATE ring_plan_snapshot_requests SET intent_id=?, created_at=? WHERE request_fingerprint=?",
+            (intent_id, snapshot["created_at"], row["request_fingerprint"]),
+        )
+    conn.execute(
+        """CREATE INDEX IF NOT EXISTS ring_plan_snapshot_requests_actor_intent
+           ON ring_plan_snapshot_requests(project_id, actor, intent_id, created_at, request_fingerprint)"""
+    )
 
 
 @contextmanager
