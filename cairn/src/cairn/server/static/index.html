@@ -2004,11 +2004,8 @@ function cairnApp() {
         }
         this.showToast('PlanInput snapshot sealed locally');
       } catch (error) {
-        if (postStarted && error.status >= 400 && error.status < 500) {
-          this.clearSnapshotPending(projectId, intent.id);
-        }
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intent.id) {
-          this.snapshotError = `${postStarted ? (this.snapshotUnknownByIntent[this.snapshotKey(projectId, intent.id)] ? 'UNKNOWN' : 'Seal rejected') : 'Seal not sent'}: ${error.message}`;
+          this.snapshotError = `${postStarted ? 'UNKNOWN' : 'Seal not sent'}: ${error.message}`;
         }
       } finally {
         this.snapshotBusy = false;
@@ -2033,9 +2030,8 @@ function cairnApp() {
         }
         this.showToast('PlanInput snapshot digest recovered');
       } catch (error) {
-        if (error.status >= 400 && error.status < 500) this.clearSnapshotPending(projectId, intentId);
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intentId) {
-          this.snapshotError = `${this.snapshotUnknownByIntent[key] ? 'UNKNOWN' : 'Seal rejected'}: exact request retry failed: ${error.message}`;
+          this.snapshotError = `UNKNOWN: exact request retry failed: ${error.message}`;
         }
       } finally {
         this.snapshotBusy = false;
