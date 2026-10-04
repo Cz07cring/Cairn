@@ -29,12 +29,27 @@ binding request is idempotent; a different or duplicate Goal binding conflicts.
 the matching, valid ReleaseManifest. Unknown version or read failure yields
 `UNKNOWN` or a fail-closed HTTP error.
 
+Every business request first validates the current Ring `/auth/session` response.
+If identity is unavailable or its contract is unknown, reads fail with 503.
+Project lists and local graph reads then use the Cairn ACL and the session's
+current `project_ids`; they remain available while Ring Goal or snapshot reads
+are temporarily unavailable. A revoked ACL or Ring project scope hides the
+project. The Ring status endpoint reports `UNKNOWN` when Goal or snapshot
+versions cannot be read, and does not turn that state into `DONE`. Binding
+creation and bound-project writes still require fresh Goal and snapshot checks.
+
 The project creator owns the Cairn ACL. The owner can add or remove a viewer
 with `PUT` and `DELETE /projects/{id}/members/{user_id}`; `GET` lists members.
 Every bound project request checks the current user's Ring project scope and
-Goal visibility as well as the Cairn ACL. Existing standalone projects have
-no ACL owner and remain inaccessible in Ring mode until an explicit migration
-is designed.
+the Cairn ACL. Writes also check fresh Goal visibility and version. Existing
+standalone projects have no ACL owner and remain inaccessible in Ring mode
+until an explicit migration is designed.
+
+Binding requires an active, idle Cairn project with no unfinished Intent,
+including an unclaimed Intent. Before binding, operators must also confirm
+that its dispatcher has stopped and no Cairn CLI container or process is still
+running. An expired SQLite worker lease alone does not prove a host process has
+stopped; B1 does not provide an atomic cross-system process fence.
 
 Ring-bound projects reject Cairn reason/worker claims, Intent worker writes,
 `complete`, `reopen`, status changes and deletion. The dispatcher also skips

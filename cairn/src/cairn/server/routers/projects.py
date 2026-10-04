@@ -49,7 +49,6 @@ from cairn.server.integration.bindings import (
     require_project_access,
     require_unbound,
     ring_status,
-    visible_goal,
     verified_goal,
 )
 from cairn.server.integration.identity import product_mode
@@ -86,24 +85,11 @@ def list_projects(request: Request):
         else:
             rows = conn.execute(query.format(filter_clause=""), ("",)).fetchall()
         if product_mode():
-            visible = []
-            for row in rows:
-                if row["execution_mode"] == "ring":
-                    if row["ring_project_id"] not in request.state.ring_principal["project_ids"]:
-                        continue
-                    try:
-                        visible_goal(
-                            request.state.ring_config,
-                            request.state.ring_cookie,
-                            row["ring_project_id"],
-                            row["ring_goal_id"],
-                        )
-                    except HTTPException as exc:
-                        if exc.status_code == 404:
-                            continue
-                        raise
-                visible.append(row)
-            rows = visible
+            ring_project_ids = set(request.state.ring_principal["project_ids"])
+            rows = [
+                row for row in rows
+                if row["execution_mode"] != "ring" or row["ring_project_id"] in ring_project_ids
+            ]
         return [
             ProjectSummary(
                 id=row["id"],
@@ -199,12 +185,12 @@ def bind_ring_goal(project_id: str, body: RingBindingRequest, request: Request):
             return RingBindingResponse(**dict(existing))
         if row["status"] != "active" or row["reason_worker"] is not None:
             raise HTTPException(409, "Project must be active and idle before binding")
-        busy = conn.execute(
-            "SELECT 1 FROM intents WHERE project_id = ? AND worker IS NOT NULL AND concluded_at IS NULL LIMIT 1",
+        open_intent = conn.execute(
+            "SELECT 1 FROM intents WHERE project_id = ? AND concluded_at IS NULL LIMIT 1",
             (project_id,),
         ).fetchone()
-        if busy:
-            raise HTTPException(409, "Project has an active Cairn worker")
+        if open_intent:
+            raise HTTPException(409, "Project has an unfinished Cairn intent")
         now = utcnow()
         try:
             conn.execute(
