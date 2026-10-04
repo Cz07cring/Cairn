@@ -726,13 +726,58 @@
                   <p class="font-semibold text-violet-800">Plan candidate · Ring decides publication</p>
                   <p x-show="planError" class="text-rose-700" x-text="planError"></p>
                   <template x-if="selectedPlanSubmission()">
-                    <div class="space-y-1">
-                      <p x-text="`${selectedPlanSubmission().state}: ${selectedPlanSubmission().detail}`"></p>
+                    <div class="space-y-2">
+                      <p x-text="`B2 submission: ${selectedPlanSubmission().state} · ${selectedPlanSubmission().detail}`"></p>
                       <p x-text="`Ring plan: ${selectedPlanSubmission().ring_state || 'UNKNOWN'}${selectedPlanSubmission().ring_plan_revision ? ` · revision ${selectedPlanSubmission().ring_plan_revision}` : ''}`"></p>
                       <p class="font-mono break-all" x-text="selectedPlanSubmission().ring_plan_id || ''"></p>
+                      <div class="rounded-lg border border-violet-200 bg-white p-3 space-y-2">
+                        <p class="font-semibold text-violet-800">PlanInput/v1 graph snapshot</p>
+                        <p class="font-semibold" x-text="`Observed stage: ${selectedPlanStage()}`"></p>
+                        <p>CANDIDATE is an unpublished Ring plan. SEALED SNAPSHOT is a local immutable copy of selected graph text and a bounded candidate summary. PUBLISHED is a separate Ring plan state. DONE requires Ring Goal completion.</p>
+                        <p x-show="ringStatus.state === 'UNKNOWN' || selectedPlanSubmission().ring_state === 'UNKNOWN'" class="text-rose-700">UNKNOWN: Ring status is unavailable. Sealing is disabled until a current state is observed.</p>
+                        <p x-text="`Selected Intent: ${selectedIntentRecord().id} · source Fact IDs from Intent.from: ${selectedIntentRecord().from.join(', ') || 'none'}`"></p>
+                        <template x-if="project.project.access_role === 'owner' && !selectedPlanSnapshot()">
+                          <div class="space-y-2">
+                            <p class="font-medium">Select Hints explicitly (optional)</p>
+                            <template x-for="hint in project.hints" :key="hint.id">
+                              <label class="flex items-start gap-2 rounded border border-amber-100 p-2">
+                                <input type="checkbox" :checked="snapshotHintIds.includes(hint.id)" :disabled="snapshotBusy || snapshotWriteUnknownForSelected()" @change="toggleSnapshotHint(hint.id, $event.target.checked)" class="mt-0.5">
+                                <span class="min-w-0"><span class="font-mono" x-text="hint.id"></span><span class="block whitespace-pre-wrap break-words" x-text="hint.content"></span></span>
+                              </label>
+                            </template>
+                            <p x-show="project.hints.length === 0">No Hints available; the selection is empty.</p>
+                            <button type="button" @click="preparePlanSnapshot()" :disabled="snapshotBusy || snapshotWriteUnknownForSelected() || !canSealPlanSnapshot()" class="rounded bg-violet-700 px-2 py-1 text-white disabled:opacity-40">Load current graph and Goal version</button>
+                            <p x-show="snapshotContext" x-text="snapshotContext ? `Graph ${snapshotContext.graph_digest} · Goal contract v${snapshotContext.goal_contract_revision} · expected plan revision ${snapshotContext.expected_plan_revision ?? 'none'}` : ''" class="font-mono break-all"></p>
+                            <button type="button" @click="sealPlanSnapshot()" :disabled="!snapshotContext || !canSealPlanSnapshot() || snapshotBusy || snapshotWriteUnknownForSelected()" class="rounded bg-violet-700 px-2 py-1 text-white disabled:opacity-40">Seal selected PlanInput snapshot</button>
+                          </div>
+                        </template>
+                        <template x-if="selectedPlanSnapshot()">
+                          <div class="space-y-2 rounded border border-emerald-200 bg-emerald-50 p-2">
+                            <p class="font-semibold text-emerald-800">SEALED SNAPSHOT · local only</p>
+                            <p class="font-mono break-all" x-text="selectedPlanSnapshot().digest"></p>
+                            <p x-text="`Candidate ${selectedPlanSnapshot().snapshot.candidate_plan_id} · ${selectedPlanSnapshot().snapshot.candidate_summary.task_count} task summaries · ${selectedPlanSnapshot().snapshot.source_fact_ids.length} source Facts · ${selectedPlanSnapshot().snapshot.hint_ids.length} selected Hints`"></p>
+                            <template x-for="task in selectedPlanSnapshot().snapshot.candidate_summary.tasks" :key="task.id">
+                              <p class="whitespace-pre-wrap break-words" x-text="`${task.id}: ${task.objective}`"></p>
+                            </template>
+                            <template x-for="item in selectedPlanSnapshot().snapshot.selected_text" :key="`${item.source_kind}:${item.id}`">
+                              <p class="whitespace-pre-wrap break-words" x-text="`${item.source_kind} ${item.id}: ${item.text}`"></p>
+                            </template>
+                          </div>
+                        </template>
+                        <label class="block">Authorized readback by digest
+                          <input x-model.trim="snapshotDigestEntry" placeholder="sha256:…" class="mt-1 w-full rounded border border-violet-200 p-2 font-mono text-xs">
+                        </label>
+                        <button type="button" @click="readPlanSnapshot()" :disabled="snapshotBusy || !/^sha256:[0-9a-f]{64}$/.test(snapshotDigestEntry)" class="rounded border border-violet-300 px-2 py-1 text-violet-800 disabled:opacity-40">Read sealed snapshot</button>
+                        <p x-show="snapshotReadError" class="text-rose-700" x-text="snapshotReadError"></p>
+                      </div>
                     </div>
                   </template>
-                  <template x-if="!selectedPlanSubmission() && project.project.access_role === 'owner'">
+                  <div x-show="snapshotWriteUnknownForSelected()" class="rounded-lg border border-rose-200 bg-rose-50 p-3 space-y-2 text-xs text-rose-800">
+                    <p>UNKNOWN: the seal request may have committed. Retry the exact saved request to recover its digest. Graph, Goal version, Fact IDs, Hint IDs, and candidate ID cannot be changed for this retry.</p>
+                    <button type="button" @click="retryPlanSnapshot()" :disabled="snapshotBusy || !snapshotPendingByIntent[snapshotKey()]" class="rounded bg-rose-700 px-2 py-1 text-white disabled:opacity-40">Retry exact seal request</button>
+                  </div>
+                  <p x-show="snapshotError" class="text-rose-700" x-text="snapshotError"></p>
+                  <template x-if="!selectedPlanSubmission() && !snapshotWriteUnknownForSelected() && project.project.access_role === 'owner'">
                     <div class="space-y-2">
                       <button @click="preparePlanCandidate()" class="rounded bg-violet-700 px-2 py-1 text-white">Load Goal contract context</button>
                       <p x-show="planContext" x-text="planContext ? `Goal contract v${planContext.goal_contract_revision}; expected plan revision ${planContext.expected_plan_revision ?? 'none'}` : ''"></p>
@@ -1138,6 +1183,15 @@ function cairnApp() {
     planContext: null,
     planJson: '',
     planError: '',
+    snapshotContext: null,
+    snapshotHintIds: [],
+    snapshotDigestEntry: '',
+    snapshotsByIntent: {},
+    snapshotBusy: false,
+    snapshotUnknownByIntent: {},
+    snapshotPendingByIntent: {},
+    snapshotError: '',
+    snapshotReadError: '',
     projects: [],
     project: null,
     selectedProjectId: '',
@@ -1734,12 +1788,197 @@ function cairnApp() {
 
     async loadPlanSubmissions() {
       if (!this.selectedProjectId || this.project?.project?.execution_mode !== 'ring') return;
-      try { this.planSubmissions = await this.api('GET', `/projects/${this.selectedProjectId}/plan-candidates`); }
-      catch (error) { this.showToast(error.message, 'error'); }
+      try {
+        this.planSubmissions = await this.api('GET', `/projects/${this.selectedProjectId}/plan-candidates`);
+        return true;
+      } catch (error) {
+        this.planSubmissions = [];
+        this.planError = `UNKNOWN: ${error.message}`;
+        this.showToast(error.message, 'error');
+        return false;
+      }
     },
 
     selectedPlanSubmission() {
       return this.planSubmissions.find(item => item.intent_id === this.selectedIntentId()) || null;
+    },
+
+    snapshotKey(projectId = this.selectedProjectId, intentId = this.selectedIntentId()) {
+      return `${projectId}:${intentId}`;
+    },
+
+    selectedPlanSnapshot() {
+      return this.snapshotsByIntent[this.snapshotKey()] || null;
+    },
+
+    snapshotWriteUnknownForSelected() {
+      return !!this.snapshotUnknownByIntent[this.snapshotKey()];
+    },
+
+    selectedPlanStage() {
+      const submission = this.selectedPlanSubmission();
+      if (!submission || this.ringStatus.state === 'UNKNOWN' || submission.ring_state === 'UNKNOWN') return 'UNKNOWN';
+      if (this.ringStatus.state === 'DONE') return 'DONE';
+      if (submission.ring_state === 'PUBLISHED') return 'PUBLISHED';
+      if (submission.state === 'CANDIDATE' && submission.ring_state === 'CANDIDATE') {
+        return this.selectedPlanSnapshot() ? 'SEALED SNAPSHOT' : 'CANDIDATE';
+      }
+      return submission.ring_state || 'UNKNOWN';
+    },
+
+    canSealPlanSnapshot() {
+      const intent = this.selectedIntentRecord();
+      const submission = this.selectedPlanSubmission();
+      return this.productMode === 'ring' && !this.replay.active
+        && this.project?.project?.execution_mode === 'ring'
+        && this.project.project.status === 'active'
+        && this.project.project.access_role === 'owner'
+        && ['PLANNING', 'RUNNING'].includes(this.ringStatus.state)
+        && intent && !intent.worker && !intent.concluded_at && !intent.to
+        && Array.isArray(intent.from) && intent.from.length > 0
+        && submission?.state === 'CANDIDATE' && submission.ring_state === 'CANDIDATE'
+        && submission.ring_plan_revision == null && !!submission.ring_plan_id
+        && !this.selectedPlanSnapshot();
+    },
+
+    toggleSnapshotHint(hintId, checked) {
+      this.snapshotHintIds = checked
+        ? [...new Set([...this.snapshotHintIds, hintId])]
+        : this.snapshotHintIds.filter(id => id !== hintId);
+      this.snapshotContext = null;
+    },
+
+    async preparePlanSnapshot() {
+      if (!this.canSealPlanSnapshot() || this.snapshotBusy || this.snapshotWriteUnknownForSelected()) return;
+      this.snapshotBusy = true;
+      this.snapshotError = '';
+      this.snapshotContext = null;
+      try {
+        const context = await this.api('GET', `/projects/${this.selectedProjectId}/plan-context`);
+        if (!this.canSealPlanSnapshot()) throw new Error('Candidate or Ring state changed; reload the project');
+        this.snapshotContext = context;
+      } catch (error) {
+        this.snapshotError = `UNKNOWN: ${error.message}`;
+      } finally {
+        this.snapshotBusy = false;
+      }
+    },
+
+    async sealPlanSnapshot() {
+      if (!this.snapshotContext || !this.canSealPlanSnapshot() || this.snapshotBusy || this.snapshotWriteUnknownForSelected()) return;
+      const projectId = this.selectedProjectId;
+      const intent = this.selectedIntentRecord();
+      const candidateId = this.selectedPlanSubmission().ring_plan_id;
+      const context = this.snapshotContext;
+      const hintIds = [...this.snapshotHintIds];
+      this.snapshotBusy = true;
+      this.snapshotError = '';
+      let postStarted = false;
+      try {
+        await this.refreshRingStatus();
+        if (!await this.loadPlanSubmissions() || !this.canSealPlanSnapshot()
+            || this.selectedProjectId !== projectId || this.selectedIntentId() !== intent.id
+            || this.selectedPlanSubmission().ring_plan_id !== candidateId) {
+          throw new Error('Candidate or Ring state changed; reload the project');
+        }
+        const fresh = await this.api('GET', `/projects/${projectId}/plan-context`);
+        if (['graph_digest', 'goal_contract_revision', 'goal_contract_digest', 'expected_plan_revision']
+            .some(field => fresh[field] !== context[field])) {
+          this.snapshotContext = null;
+          throw new Error('Graph or Goal version changed; load current context again');
+        }
+        const body = {
+          selected_intent_id: intent.id,
+          fact_ids: [...intent.from],
+          hint_ids: hintIds,
+          graph_digest: context.graph_digest,
+          goal_contract_revision: context.goal_contract_revision,
+          goal_contract_digest: context.goal_contract_digest,
+          expected_plan_revision: context.expected_plan_revision,
+          candidate_plan_id: candidateId,
+        };
+        this.snapshotPendingByIntent = { ...this.snapshotPendingByIntent,
+          [this.snapshotKey(projectId, intent.id)]: body };
+        postStarted = true;
+        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, body);
+        this.snapshotsByIntent = { ...this.snapshotsByIntent,
+          [this.snapshotKey(projectId, intent.id)]: response };
+        const pending = { ...this.snapshotPendingByIntent };
+        delete pending[this.snapshotKey(projectId, intent.id)];
+        this.snapshotPendingByIntent = pending;
+        if (this.selectedProjectId === projectId && this.selectedIntentId() === intent.id) {
+          this.snapshotDigestEntry = response.digest;
+          this.snapshotContext = null;
+        }
+        this.showToast('PlanInput snapshot sealed locally');
+      } catch (error) {
+        if (postStarted && (!error.status || error.status >= 500)) {
+          this.snapshotUnknownByIntent = { ...this.snapshotUnknownByIntent,
+            [this.snapshotKey(projectId, intent.id)]: true };
+        } else if (postStarted) {
+          const pending = { ...this.snapshotPendingByIntent };
+          delete pending[this.snapshotKey(projectId, intent.id)];
+          this.snapshotPendingByIntent = pending;
+        }
+        if (this.selectedProjectId === projectId && this.selectedIntentId() === intent.id) {
+          this.snapshotError = `${this.snapshotUnknownByIntent[this.snapshotKey(projectId, intent.id)] ? 'UNKNOWN' : 'Seal rejected'}: ${error.message}`;
+        }
+      } finally {
+        this.snapshotBusy = false;
+      }
+    },
+
+    async retryPlanSnapshot() {
+      const projectId = this.selectedProjectId;
+      const intentId = this.selectedIntentId();
+      const key = this.snapshotKey(projectId, intentId);
+      const body = this.snapshotPendingByIntent[key];
+      if (this.snapshotBusy || !this.snapshotUnknownByIntent[key] || !body) return;
+      this.snapshotBusy = true;
+      this.snapshotError = '';
+      try {
+        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, body);
+        this.snapshotsByIntent = { ...this.snapshotsByIntent, [key]: response };
+        const pending = { ...this.snapshotPendingByIntent };
+        delete pending[key];
+        this.snapshotPendingByIntent = pending;
+        const unknown = { ...this.snapshotUnknownByIntent };
+        delete unknown[key];
+        this.snapshotUnknownByIntent = unknown;
+        if (this.selectedProjectId === projectId && this.selectedIntentId() === intentId) {
+          this.snapshotDigestEntry = response.digest;
+          this.snapshotContext = null;
+        }
+        this.showToast('PlanInput snapshot digest recovered');
+      } catch (error) {
+        if (this.selectedProjectId === projectId && this.selectedIntentId() === intentId) {
+          this.snapshotError = `UNKNOWN: exact request retry failed: ${error.message}`;
+        }
+      } finally {
+        this.snapshotBusy = false;
+      }
+    },
+
+    async readPlanSnapshot() {
+      const digest = this.snapshotDigestEntry;
+      if (this.snapshotBusy || !/^sha256:[0-9a-f]{64}$/.test(digest)) return;
+      const projectId = this.selectedProjectId;
+      const intentId = this.selectedIntentId();
+      this.snapshotBusy = true;
+      this.snapshotReadError = '';
+      try {
+        const snapshot = await this.api('GET', `/projects/${projectId}/plan-snapshots/${digest}`);
+        if (snapshot.cairn_project_id !== projectId || snapshot.selected_intent_id !== intentId
+            || snapshot.candidate_plan_id !== this.selectedPlanSubmission()?.ring_plan_id) {
+          throw new Error('Digest does not match this project, Intent, and B2 candidate');
+        }
+        this.snapshotsByIntent = { ...this.snapshotsByIntent,
+          [this.snapshotKey(projectId, intentId)]: { digest, snapshot } };
+      } catch (error) {
+        this.snapshotReadError = `Readback unavailable: ${error.message}`;
+      } finally {
+        this.snapshotBusy = false;
+      }
     },
 
     async preparePlanCandidate() {
@@ -2291,6 +2530,11 @@ function cairnApp() {
       this.selectedNode = null;
       this.selectedFacts = [];
       this.selectedTimelineEntryId = null;
+      this.snapshotContext = null;
+      this.snapshotHintIds = [];
+      this.snapshotDigestEntry = '';
+      this.snapshotError = '';
+      this.snapshotReadError = '';
       if (!await this.loadProject(id)) {
         if (this.project) this.selectedProjectId = previousId;
         else location.hash = '/';
@@ -2884,6 +3128,13 @@ function cairnApp() {
     selectIntent(intent) {
       const intentId = typeof intent === 'string' ? intent : intent?.id;
       if (!intentId) return;
+      if (this.selectedIntentId() !== intentId) {
+        this.snapshotContext = null;
+        this.snapshotHintIds = [];
+        this.snapshotDigestEntry = this.snapshotsByIntent[this.snapshotKey(this.selectedProjectId, intentId)]?.digest || '';
+        this.snapshotError = '';
+        this.snapshotReadError = '';
+      }
       this.selectedFacts = [];
       this.selectedTimelineEntryId = null;
       this.selectedNode = { type:'intent', id: intentId };

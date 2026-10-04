@@ -115,7 +115,7 @@ UTF-8、排序键、紧凑分隔符封存为 BLOB，并以原始字节计算 `sh
 
 `GET /projects/{id}/plan-snapshots/{digest}` 按当前本地 ACL 和 Ring project
 scope 返回封存的**原始规范 JSON 字节**，`X-Content-Digest` 给出摘要。浏览器
-当前没有此接口的调用方；这是供后续受控 Ring 登记和审查使用的 API。
+在选中 Intent 的快照面板按 digest 显式回读；此 API 也供后续受控 Ring 登记和审查使用。
 快照只证明 Cairn 本地图字节与来源关系，不证明 Fact 是可信 Evidence。
 此批不调用 Ring PlanInput 登记接口，也不启动 PLAN、发布 Plan 或创建 Task。
 Ring 侧仍须在登记与 PLAN attempt 绑定时重新核对 Goal、候选、权限和摘要。
