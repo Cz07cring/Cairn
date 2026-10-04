@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import ParseResult, urlparse
 
 import requests
 
@@ -20,6 +20,12 @@ class RingContractUnknown(Exception):
     pass
 
 
+def _secure_origin(parsed: ParseResult) -> bool:
+    return parsed.scheme == "https" or (
+        parsed.scheme == "http" and parsed.hostname in {"localhost", "127.0.0.1", "::1"}
+    )
+
+
 @dataclass(frozen=True)
 class RingConfig:
     base_url: str
@@ -30,11 +36,25 @@ class RingConfig:
         base_url = os.environ.get("CAIRN_RING_BASE_URL", "").rstrip("/")
         public_origin = os.environ.get("CAIRN_PUBLIC_ORIGIN", "").rstrip("/")
         base = urlparse(base_url)
-        if base.scheme not in {"http", "https"} or not base.netloc or base.path or base.query or base.fragment:
-            raise RuntimeError("CAIRN_RING_BASE_URL must be an HTTP(S) URL")
+        if (
+            not _secure_origin(base)
+            or not base.netloc
+            or base.path
+            or base.query
+            or base.fragment
+            or base.username
+        ):
+            raise RuntimeError("CAIRN_RING_BASE_URL must use HTTPS or loopback HTTP")
         parsed = urlparse(public_origin)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.path or parsed.query or parsed.fragment or parsed.username:
-            raise RuntimeError("CAIRN_PUBLIC_ORIGIN must be an origin without a path")
+        if (
+            not _secure_origin(parsed)
+            or not parsed.netloc
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or parsed.username
+        ):
+            raise RuntimeError("CAIRN_PUBLIC_ORIGIN must use HTTPS or loopback HTTP")
         return cls(base_url, public_origin)
 
 

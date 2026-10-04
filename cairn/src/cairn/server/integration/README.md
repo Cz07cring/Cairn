@@ -9,6 +9,8 @@ Ring mode requires:
 
 - `CAIRN_RING_BASE_URL`: internal Ring Control API origin, for server-side reads.
 - `CAIRN_PUBLIC_ORIGIN`: browser-facing Cairn origin, for strict Origin checks.
+- Both origins must use HTTPS, or HTTP on loopback for local development. The
+  server forwards the user's Ring session cookie to `CAIRN_RING_BASE_URL`.
 - A reverse proxy that serves Cairn at `/` and Ring OIDC endpoints at
   `/api/v1/auth/*` on that same origin. Ring must allow the Cairn origin as an
   OIDC return origin and set the `ring_session` cookie for `/`.
