@@ -2,6 +2,8 @@
 
 日期：2026-10-04（Asia/Shanghai）。状态：**方案，未实施、未联调、未验收**。本次只读核对的 Cairn HEAD 为 `8e7e0ea67552383851dfcabfba0c4e9c8d007878`，Ringharness HEAD 为 `f61df68049c75ec5bd6bd279f51b196e89722031`；Ringharness 工作树有在途改动，因此下述“已存在”只指本次看到的源码，不代表已部署实例可用。Cairn 与 Ringharness 的生产身份、目标、运行数据均未探测。
 
+执行更新（2026-10-04 23:30，Asia/Shanghai）：方案编写后的 Cairn fork 分支 `ringharness-integration` 已提交 B1 产品入口/只读绑定与 B2 人工完整 `PlanCreate` 候选桥接，当前提交为 `c20c6a1`。这些提交只做过窄范围语法、导入和静态核对，尚未完成真实浏览器、Ring Control、Temporal、Broker、审计或恢复的端到端验收。B2 的公开候选不会自动成为 `PUBLISHED` Plan；B2b/B2c 先解决零工具 PLAN 输入与发布接线。B3/B4 和最终 E2E 未启动。上段“未实施”记录的是本方案最初编写时点，不代表此处更新后的代码状态。
+
 ## 结论和范围
 
 采用 **Cairn fork 作为 UI 与探索投影**：保留 `Fact → Intent → Explore → Reason` 的图、用户 Hint 和探索方向，但这些记录没有执行、验收或终态权限。**Ringharness PostgreSQL、ControlKernel、Temporal 与 ExecutionBroker/Effect Gateway 分别是持久状态、业务裁决、活动编排与外部副作用的权威**。Ring EvidenceLedger、独立 Auditor、最终屏障及 ReleaseManifest 决定可引用证据与 `DONE`。Cairn 的 SQLite 只保存图、绑定和投影游标；不得直接写 Ring PG，也不得用 SQLite `completed`、模型 `complete` 或 HTTP 202 冒充 Ring `DONE`。
