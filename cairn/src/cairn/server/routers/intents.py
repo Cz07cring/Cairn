@@ -2,11 +2,17 @@ import json
 import sqlite3
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
 
 from cairn.server.db import get_conn
-from cairn.server.integration.bindings import binding_for, require_unbound, verified_goal
+from cairn.server.integration.bindings import (
+    binding_for, project_role, require_unbound, verified_goal,
+)
 from cairn.server.integration.identity import product_mode
 from cairn.server.integration.intent_bridge import canonical, digest, graph_digest, validate_candidate
+from cairn.server.integration.plan_snapshot import (
+    decode_snapshot, read_candidate_summary, seal_snapshot,
+)
 from cairn.server.integration.ring_client import (
     RingContractUnknown, RingDenied, RingUnavailable, RingWriteRejected,
     read_collection, submit_plan_candidate,
@@ -19,6 +25,7 @@ from cairn.server.models import (
     HeartbeatRequest,
     Intent,
     PlanCandidateRequest,
+    PlanSnapshotRequest,
 )
 from cairn.server.services import (
     check_project_active,
@@ -34,6 +41,81 @@ from cairn.server.services import (
 )
 
 router = APIRouter(tags=["intents"])
+
+
+@router.post("/projects/{project_id}/plan-snapshots", status_code=201)
+def create_plan_snapshot(project_id: str, body: PlanSnapshotRequest, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Ring plan snapshots are unavailable")
+    principal = request.state.ring_principal
+    if "operator" not in principal["roles"]:
+        raise HTTPException(403, "Ring operator role required")
+    with get_conn() as conn:
+        if project_role(conn, project_id, principal["user_id"]) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if binding is None:
+            raise HTTPException(404, "Ring binding not found")
+        if binding["ring_project_id"] not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        ring_project_id, ring_goal_id = binding["ring_project_id"], binding["ring_goal_id"]
+    candidate = read_candidate_summary(
+        request.state.ring_config, request.state.ring_cookie,
+        ring_goal_id, ring_project_id, body.candidate_plan_id,
+    )
+    goal, _ = verified_goal(
+        request.state.ring_config, request.state.ring_cookie, ring_project_id, ring_goal_id,
+    )
+    with get_conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        if project_role(conn, project_id, principal["user_id"]) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if (binding is None or binding["ring_project_id"] != ring_project_id
+                or binding["ring_goal_id"] != ring_goal_id):
+            raise HTTPException(409, "Project binding changed")
+        check_project_active(conn, project_id)
+        snapshot_digest, raw = seal_snapshot(
+            conn, project_id, binding, principal["user_id"], body, goal, candidate,
+        )
+        existing = conn.execute(
+            "SELECT canonical_json FROM ring_plan_snapshots WHERE digest=?", (snapshot_digest,)
+        ).fetchone()
+        if existing is not None and bytes(existing["canonical_json"]) != raw:
+            raise HTTPException(409, "Plan snapshot digest collision")
+        if existing is None:
+            conn.execute(
+                """INSERT INTO ring_plan_snapshots
+                   (digest, project_id, ring_project_id, ring_goal_id, created_by, canonical_json, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (snapshot_digest, project_id, ring_project_id, ring_goal_id,
+                 principal["user_id"], raw, utcnow()),
+            )
+    return {"digest": snapshot_digest, "snapshot": decode_snapshot(raw, snapshot_digest)}
+
+
+@router.get("/projects/{project_id}/plan-snapshots/{snapshot_digest}")
+def get_plan_snapshot(project_id: str, snapshot_digest: str, request: Request):
+    if not product_mode():
+        raise HTTPException(404, "Ring plan snapshots are unavailable")
+    principal = request.state.ring_principal
+    with get_conn() as conn:
+        if project_role(conn, project_id, principal["user_id"]) is None:
+            raise HTTPException(404, "Project not found")
+        binding = binding_for(conn, project_id)
+        if binding is None or binding["ring_project_id"] not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        row = conn.execute(
+            """SELECT canonical_json FROM ring_plan_snapshots
+               WHERE project_id=? AND ring_project_id=? AND ring_goal_id=? AND digest=?""",
+            (project_id, binding["ring_project_id"], binding["ring_goal_id"], snapshot_digest),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(404, "Plan snapshot not found")
+        raw = bytes(row["canonical_json"])
+    decode_snapshot(raw, snapshot_digest)
+    return Response(content=raw, media_type="application/json",
+                    headers={"X-Content-Digest": snapshot_digest})
 
 
 @router.post(

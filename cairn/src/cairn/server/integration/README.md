@@ -87,3 +87,35 @@ a different operator cannot safely replay the request.
 Plan list and shows local rejection detail and the currently visible Ring plan
 status. A rejected attempt needs a new
 Intent; editing a submitted Intent's request is not allowed.
+
+## C1：不可变 PlanInput/v1 图快照
+
+`POST /projects/{id}/plan-snapshots` 只接受本地项目 owner、当前 Ring
+`operator` 和仍在 Ring project scope 内的用户。请求必须显式提供
+`selected_intent_id`、`fact_ids`、`hint_ids`（可以是空数组）、
+`graph_digest`、`goal_contract_revision`、`goal_contract_digest`、
+`expected_plan_revision`（可为 `null`），以及必填的 `candidate_plan_id`。
+请求体不接收 cookie、key、Evidence 或候选正文。Ring 会话只用于本次服务端回读。
+
+服务端先回读 Goal 的完整分页 Plan 列表，再回读当前 Goal/snapshot。
+候选必须是 B2 在同一 Intent 保存的 Plan ID，Ring 当前返回的状态必须为
+`CANDIDATE`、`plan_revision=null`，且有有效 `content_digest`。
+候选摘要只包含受限的 Task ID、目标、依赖及 coverage 结构；不复制 reason、
+完整 TaskContract 或任何 Evidence。Ring 读取失败返回 `503`，调用方应标为
+`UNKNOWN`，不得猜测成功。
+
+SQLite `BEGIN IMMEDIATE` 事务内再次检查 ACL、绑定、项目状态、图摘要、
+Intent 来源边、所选 Fact/Hint 和 Goal 版本。Fact 集必须与该 Intent 当前来源
+Fact 集完全一致。Intent 必须未领取且未结束。图文字、候选摘要和规范 JSON
+分别有长度上界；疑似凭据文本和超限输入直接拒绝，不裁剪。敏感文本正则
+只是启发式，不能证明任意 Fact 不含秘密；录入 Fact 的人仍须避免放入凭据
+或原始敏感 Evidence。规范 JSON 用
+UTF-8、排序键、紧凑分隔符封存为 BLOB，并以原始字节计算 `sha256:` 摘要。
+`created_at` 不参与摘要；同一用户对同一选择及版本重放会得到相同摘要。
+
+`GET /projects/{id}/plan-snapshots/{digest}` 按当前本地 ACL 和 Ring project
+scope 返回封存的**原始规范 JSON 字节**，`X-Content-Digest` 给出摘要。浏览器
+当前没有此接口的调用方；这是供后续受控 Ring 登记和审查使用的 API。
+快照只证明 Cairn 本地图字节与来源关系，不证明 Fact 是可信 Evidence。
+此批不调用 Ring PlanInput 登记接口，也不启动 PLAN、发布 Plan 或创建 Task。
+Ring 侧仍须在登记与 PLAN attempt 绑定时重新核对 Goal、候选、权限和摘要。

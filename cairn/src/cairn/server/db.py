@@ -113,6 +113,19 @@ CREATE TABLE IF NOT EXISTS ring_plan_submissions (
     PRIMARY KEY (project_id, intent_id),
     FOREIGN KEY (intent_id, project_id) REFERENCES intents(id, project_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS ring_plan_snapshots (
+    digest TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    ring_project_id TEXT NOT NULL,
+    ring_goal_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    canonical_json BLOB NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS ring_plan_snapshots_project
+    ON ring_plan_snapshots(project_id, created_at);
 """
 
 

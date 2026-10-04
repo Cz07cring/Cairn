@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import Any, Literal
+from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, StrictInt, field_validator
 
 
 class Settings(BaseModel):
@@ -272,3 +273,24 @@ class PlanCandidateRequest(BaseModel):
     plan: dict[str, Any]
 
     model_config = {"extra": "forbid"}
+
+
+class PlanSnapshotRequest(BaseModel):
+    selected_intent_id: str = Field(min_length=1, max_length=100)
+    fact_ids: list[str] = Field(min_length=1, max_length=32)
+    hint_ids: list[str] = Field(max_length=32)
+    graph_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    goal_contract_revision: StrictInt = Field(ge=1)
+    goal_contract_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    expected_plan_revision: StrictInt | None = Field(ge=1)
+    candidate_plan_id: str
+
+    model_config = {"extra": "forbid"}
+
+    @field_validator("candidate_plan_id")
+    @classmethod
+    def canonical_candidate_id(cls, value: str) -> str:
+        parsed = UUID(value)
+        if str(parsed) != value:
+            raise ValueError("candidate_plan_id must be a canonical UUID")
+        return value

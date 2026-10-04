@@ -115,7 +115,7 @@ async def product_gate(request: Request, call_next):
                         return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
                 allowed_bound_write = (
                     (request.method == "PUT" and len(parts) == 3 and parts[2] == "title")
-                    or (request.method == "POST" and len(parts) == 3 and parts[2] in {"hints", "ring-binding", "intents"})
+                    or (request.method == "POST" and len(parts) == 3 and parts[2] in {"hints", "ring-binding", "intents", "plan-snapshots"})
                     or (request.method in {"PUT", "DELETE"} and len(parts) == 4 and parts[2] == "members")
                     or (request.method == "POST" and len(parts) == 5 and parts[2] == "intents" and parts[4] == "plan-candidate")
                     or (request.method == "POST" and len(parts) == 6 and parts[2] == "intents" and parts[4:] == ["plan-candidate", "reconcile"])
