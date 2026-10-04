@@ -6,7 +6,9 @@
 
 执行更新（2026-10-04 23:41，Asia/Shanghai）：C1 Cairn 不可变图快照 API 已合入，参见 [PLAN 消费缝](plan-consumption-seam.md) 和 [固定融合 E2E 场景](fusion-e2e-scenario.md)。Ring 侧 R1 输入登记/准入、R2 Runner 消费、R3 Temporal 待输入唤醒已作为[待认领 Issue #81](https://github.com/Cz07cring/ringharness/issues/81) 登记；现行路径所有者尚未确认释放。C1 只有本地图快照与受权回读，尚无 Ring PlanInput 调用方；C2 页面入口在开发。B3 决策门继续关闭，最终融合 E2E 的各层仍为 `not-run`。
 
-执行更新（2026-10-04 23:48，Asia/Shanghai）：C2 页面入口在 `335a704` 合入，展示候选、已封存本地快照、发布与 DONE 的不同状态，并提供按摘要回读。审查发现写入回包丢失后刷新页面会丢失原请求，C2a 正在补跨刷新 UNKNOWN 恢复；C2/C2a 均尚未做真实浏览器验证。C3 向 Ring 提交 PlanInput、C4 受控启动与重新规划均依赖 R1/R2/R3，尚未启动。B3 决策门保持关闭；全部融合 E2E 层仍为 `not-run`。
+执行更新（2026-10-04 23:48，Asia/Shanghai）：C2 页面入口在 `335a704` 合入，展示候选和已封存本地快照，并提供按摘要回读。审查发现写入回包丢失后刷新页面会丢失原请求，C2a 开始补跨刷新 UNKNOWN 恢复；该时点尚未做真实浏览器验证。
+
+执行更新（2026-10-04 23:56，Asia/Shanghai）：C2a 已补会话内原请求保存与刷新恢复，并移除“所选 B2 候选因 Goal DONE 而已完成”的假关联；`de01271` 使所有无权威回读的写入错误继续显示 `UNKNOWN`。C1a 在 `57db02d` 增加同事务原请求指纹映射，授权重试可在图或 Goal 漂移后读回原 digest。独立窄范围 ASGI/SQLite 诊断复跑了旧库升级、回滚、漂移/读接口故障、授权与并发；这不是浏览器或融合 E2E。关闭浏览器标签或清除 `sessionStorage` 后，UI 可能失去原请求，需通过有权限的本地记录核对。C3 向 Ring 提交 PlanInput、C4 受控启动与重新规划仍依赖 R1/R2/R3，尚未启动。B3 决策门保持关闭；全部融合 E2E 层仍为 `not-run`。
 
 ## 结论和范围
 
