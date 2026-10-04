@@ -728,12 +728,12 @@
                   <template x-if="selectedPlanSubmission()">
                     <div class="space-y-2">
                       <p x-text="`B2 submission: ${selectedPlanSubmission().state} · ${selectedPlanSubmission().detail}`"></p>
-                      <p x-text="`Ring plan: ${selectedPlanSubmission().ring_state || 'UNKNOWN'}${selectedPlanSubmission().ring_plan_revision ? ` · revision ${selectedPlanSubmission().ring_plan_revision}` : ''}`"></p>
+                      <p x-text="`Observed B2 plan ID state: ${selectedPlanSubmission().ring_state || 'UNKNOWN'}${selectedPlanSubmission().ring_plan_revision ? ` · revision ${selectedPlanSubmission().ring_plan_revision}` : ''}`"></p>
                       <p class="font-mono break-all" x-text="selectedPlanSubmission().ring_plan_id || ''"></p>
                       <div class="rounded-lg border border-violet-200 bg-white p-3 space-y-2">
                         <p class="font-semibold text-violet-800">PlanInput/v1 graph snapshot</p>
-                        <p class="font-semibold" x-text="`Observed stage: ${selectedPlanStage()}`"></p>
-                        <p>CANDIDATE is an unpublished Ring plan. SEALED SNAPSHOT is a local immutable copy of selected graph text and a bounded candidate summary. PUBLISHED is a separate Ring plan state. DONE requires Ring Goal completion.</p>
+                        <p class="font-semibold" x-text="`Selected B2 candidate snapshot stage: ${selectedPlanStage()}`"></p>
+                        <p>CANDIDATE is an unpublished B2 plan. SEALED SNAPSHOT is a local immutable copy of selected graph text and a bounded candidate summary. Ring Goal status is shown separately; this snapshot does not prove publication or completion.</p>
                         <p x-show="ringStatus.state === 'UNKNOWN' || selectedPlanSubmission().ring_state === 'UNKNOWN'" class="text-rose-700">UNKNOWN: Ring status is unavailable. Sealing is disabled until a current state is observed.</p>
                         <p x-text="`Selected Intent: ${selectedIntentRecord().id} · source Fact IDs from Intent.from: ${selectedIntentRecord().from.join(', ') || 'none'}`"></p>
                         <template x-if="project.project.access_role === 'owner' && !selectedPlanSnapshot()">
@@ -773,9 +773,10 @@
                     </div>
                   </template>
                   <div x-show="snapshotWriteUnknownForSelected()" class="rounded-lg border border-rose-200 bg-rose-50 p-3 space-y-2 text-xs text-rose-800">
-                    <p>UNKNOWN: the seal request may have committed. Retry the exact saved request to recover its digest. Graph, Goal version, Fact IDs, Hint IDs, and candidate ID cannot be changed for this retry.</p>
+                    <p x-text="snapshotPendingByIntent[snapshotKey()] ? 'UNKNOWN: the seal request may have committed. Retry the exact saved request to recover its digest. Graph, Goal version, Fact IDs, Hint IDs, and candidate ID cannot be changed for this retry.' : 'UNKNOWN: the saved request is unavailable or invalid. Do not create a new seal request until the earlier write is reconciled.'"></p>
                     <button type="button" @click="retryPlanSnapshot()" :disabled="snapshotBusy || !snapshotPendingByIntent[snapshotKey()]" class="rounded bg-rose-700 px-2 py-1 text-white disabled:opacity-40">Retry exact seal request</button>
                   </div>
+                  <p x-show="snapshotRecoveryError" class="text-xs text-rose-700" x-text="snapshotRecoveryError"></p>
                   <p x-show="snapshotError" class="text-rose-700" x-text="snapshotError"></p>
                   <template x-if="!selectedPlanSubmission() && !snapshotWriteUnknownForSelected() && project.project.access_role === 'owner'">
                     <div class="space-y-2">
@@ -1190,6 +1191,7 @@ function cairnApp() {
     snapshotBusy: false,
     snapshotUnknownByIntent: {},
     snapshotPendingByIntent: {},
+    snapshotRecoveryError: '',
     snapshotError: '',
     snapshotReadError: '',
     projects: [],
@@ -1272,6 +1274,7 @@ function cairnApp() {
         this.userId = session.user_id || '';
         this.csrfToken = session.csrf_token || '';
         this.loginUrl = session.login_url || '';
+        if (this.productMode === 'ring') this.restoreSnapshotPending();
         this.authState = 'ready';
       } catch (error) {
         this.authState = 'unknown';
@@ -1298,13 +1301,19 @@ function cairnApp() {
       }
     },
 
-    async api(method, path, body) {
+    async api(method, path, body, serializedBody = null) {
       const opts = { method, headers: { 'Content-Type': 'application/json' } };
       if (this.productMode === 'ring' && method !== 'GET') opts.headers['X-CSRF-Token'] = this.csrfToken;
-      if (body) opts.body = JSON.stringify(body);
+      if (serializedBody !== null) opts.body = serializedBody;
+      else if (body) opts.body = JSON.stringify(body);
       const r = await fetch(path, opts);
       if (r.status === 204) return null;
-      const data = await r.json();
+      let data;
+      try { data = await r.json(); }
+      catch (error) {
+        if (r.ok) throw error;
+        data = {};
+      }
       if (!r.ok) {
         if (r.status === 401 && this.productMode === 'ring') {
           this.authState = 'login';
@@ -1807,6 +1816,93 @@ function cairnApp() {
       return `${projectId}:${intentId}`;
     },
 
+    snapshotStorageKey(projectId, intentId) {
+      if (this.productMode !== 'ring' || !this.userId || !projectId || !intentId) {
+        throw new Error('Ring identity or snapshot scope is unavailable');
+      }
+      return `cairn.planSnapshotPending.v1:${encodeURIComponent(this.userId)}:${encodeURIComponent(projectId)}:${encodeURIComponent(intentId)}`;
+    },
+
+    validSnapshotPending(bodyJson, intentId) {
+      if (typeof bodyJson !== 'string') return false;
+      try {
+        const body = JSON.parse(bodyJson);
+        const fields = ['candidate_plan_id', 'expected_plan_revision', 'fact_ids', 'goal_contract_digest',
+          'goal_contract_revision', 'graph_digest', 'hint_ids', 'selected_intent_id'];
+        const digest = value => typeof value === 'string' && /^sha256:[0-9a-f]{64}$/.test(value);
+        const ids = (values, pattern, max) => Array.isArray(values) && values.length <= max
+          && values.every(value => typeof value === 'string' && pattern.test(value));
+        return body && typeof body === 'object' && !Array.isArray(body)
+          && JSON.stringify(Object.keys(body).sort()) === JSON.stringify(fields)
+          && body.selected_intent_id === intentId && /^i[0-9]+$/.test(intentId)
+          && ids(body.fact_ids, /^(origin|f[0-9]+)$/, 32) && body.fact_ids.length > 0
+          && ids(body.hint_ids, /^h[0-9]+$/, 32)
+          && digest(body.graph_digest) && digest(body.goal_contract_digest)
+          && Number.isInteger(body.goal_contract_revision) && body.goal_contract_revision >= 1
+          && (body.expected_plan_revision === null
+            || (Number.isInteger(body.expected_plan_revision) && body.expected_plan_revision >= 1))
+          && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(body.candidate_plan_id);
+      } catch { return false; }
+    },
+
+    restoreSnapshotPending() {
+      if (!this.userId) return;
+      const prefix = `cairn.planSnapshotPending.v1:${encodeURIComponent(this.userId)}:`;
+      try {
+        for (let index = 0; index < sessionStorage.length; index++) {
+          const storageKey = sessionStorage.key(index);
+          if (!storageKey?.startsWith(prefix)) continue;
+          const scope = storageKey.slice(prefix.length).split(':');
+          if (scope.length !== 2) continue;
+          const [projectId, intentId] = scope.map(decodeURIComponent);
+          const key = this.snapshotKey(projectId, intentId);
+          this.snapshotUnknownByIntent = { ...this.snapshotUnknownByIntent, [key]: true };
+          try {
+            const saved = JSON.parse(sessionStorage.getItem(storageKey));
+            if (saved?.unknown === true && this.validSnapshotPending(saved.body_json, intentId)) {
+              this.snapshotPendingByIntent = { ...this.snapshotPendingByIntent, [key]: saved.body_json };
+            } else {
+              this.snapshotRecoveryError = 'A saved snapshot request is invalid. Its UNKNOWN state is retained; retry is disabled.';
+            }
+          } catch {
+            this.snapshotRecoveryError = 'A saved snapshot request is invalid. Its UNKNOWN state is retained; retry is disabled.';
+          }
+        }
+      } catch {
+        this.snapshotRecoveryError = 'Browser session recovery is unavailable. Snapshot sealing is blocked until storage works.';
+      }
+    },
+
+    persistSnapshotPending(projectId, intentId, bodyJson) {
+      if (!this.validSnapshotPending(bodyJson, intentId)) throw new Error('Snapshot request is invalid');
+      const storageKey = this.snapshotStorageKey(projectId, intentId);
+      const saved = JSON.stringify({ unknown: true, body_json: bodyJson });
+      try {
+        if (sessionStorage.getItem(storageKey) !== null) {
+          throw new Error('An earlier seal request must be reconciled first');
+        }
+        sessionStorage.setItem(storageKey, saved);
+        if (sessionStorage.getItem(storageKey) !== saved) throw new Error('Saved request could not be verified');
+      } catch (error) {
+        throw new Error(`Browser recovery storage failed (${error.message})`);
+      }
+      const key = this.snapshotKey(projectId, intentId);
+      this.snapshotPendingByIntent = { ...this.snapshotPendingByIntent, [key]: bodyJson };
+      this.snapshotUnknownByIntent = { ...this.snapshotUnknownByIntent, [key]: true };
+    },
+
+    clearSnapshotPending(projectId, intentId) {
+      try { sessionStorage.removeItem(this.snapshotStorageKey(projectId, intentId)); }
+      catch { this.snapshotRecoveryError = 'The browser could not clear its snapshot recovery record. A refresh may show an old UNKNOWN request.'; }
+      const key = this.snapshotKey(projectId, intentId);
+      const pending = { ...this.snapshotPendingByIntent };
+      const unknown = { ...this.snapshotUnknownByIntent };
+      delete pending[key];
+      delete unknown[key];
+      this.snapshotPendingByIntent = pending;
+      this.snapshotUnknownByIntent = unknown;
+    },
+
     selectedPlanSnapshot() {
       return this.snapshotsByIntent[this.snapshotKey()] || null;
     },
@@ -1818,12 +1914,10 @@ function cairnApp() {
     selectedPlanStage() {
       const submission = this.selectedPlanSubmission();
       if (!submission || this.ringStatus.state === 'UNKNOWN' || submission.ring_state === 'UNKNOWN') return 'UNKNOWN';
-      if (this.ringStatus.state === 'DONE') return 'DONE';
-      if (submission.ring_state === 'PUBLISHED') return 'PUBLISHED';
       if (submission.state === 'CANDIDATE' && submission.ring_state === 'CANDIDATE') {
         return this.selectedPlanSnapshot() ? 'SEALED SNAPSHOT' : 'CANDIDATE';
       }
-      return submission.ring_state || 'UNKNOWN';
+      return 'UNKNOWN';
     },
 
     canSealPlanSnapshot() {
@@ -1897,31 +1991,24 @@ function cairnApp() {
           expected_plan_revision: context.expected_plan_revision,
           candidate_plan_id: candidateId,
         };
-        this.snapshotPendingByIntent = { ...this.snapshotPendingByIntent,
-          [this.snapshotKey(projectId, intent.id)]: body };
+        const bodyJson = JSON.stringify(body);
+        this.persistSnapshotPending(projectId, intent.id, bodyJson);
         postStarted = true;
-        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, body);
+        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, null, bodyJson);
         this.snapshotsByIntent = { ...this.snapshotsByIntent,
           [this.snapshotKey(projectId, intent.id)]: response };
-        const pending = { ...this.snapshotPendingByIntent };
-        delete pending[this.snapshotKey(projectId, intent.id)];
-        this.snapshotPendingByIntent = pending;
+        this.clearSnapshotPending(projectId, intent.id);
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intent.id) {
           this.snapshotDigestEntry = response.digest;
           this.snapshotContext = null;
         }
         this.showToast('PlanInput snapshot sealed locally');
       } catch (error) {
-        if (postStarted && (!error.status || error.status >= 500)) {
-          this.snapshotUnknownByIntent = { ...this.snapshotUnknownByIntent,
-            [this.snapshotKey(projectId, intent.id)]: true };
-        } else if (postStarted) {
-          const pending = { ...this.snapshotPendingByIntent };
-          delete pending[this.snapshotKey(projectId, intent.id)];
-          this.snapshotPendingByIntent = pending;
+        if (postStarted && error.status >= 400 && error.status < 500) {
+          this.clearSnapshotPending(projectId, intent.id);
         }
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intent.id) {
-          this.snapshotError = `${this.snapshotUnknownByIntent[this.snapshotKey(projectId, intent.id)] ? 'UNKNOWN' : 'Seal rejected'}: ${error.message}`;
+          this.snapshotError = `${postStarted ? (this.snapshotUnknownByIntent[this.snapshotKey(projectId, intent.id)] ? 'UNKNOWN' : 'Seal rejected') : 'Seal not sent'}: ${error.message}`;
         }
       } finally {
         this.snapshotBusy = false;
@@ -1932,27 +2019,23 @@ function cairnApp() {
       const projectId = this.selectedProjectId;
       const intentId = this.selectedIntentId();
       const key = this.snapshotKey(projectId, intentId);
-      const body = this.snapshotPendingByIntent[key];
-      if (this.snapshotBusy || !this.snapshotUnknownByIntent[key] || !body) return;
+      const bodyJson = this.snapshotPendingByIntent[key];
+      if (this.snapshotBusy || !this.snapshotUnknownByIntent[key] || !bodyJson) return;
       this.snapshotBusy = true;
       this.snapshotError = '';
       try {
-        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, body);
+        const response = await this.api('POST', `/projects/${projectId}/plan-snapshots`, null, bodyJson);
         this.snapshotsByIntent = { ...this.snapshotsByIntent, [key]: response };
-        const pending = { ...this.snapshotPendingByIntent };
-        delete pending[key];
-        this.snapshotPendingByIntent = pending;
-        const unknown = { ...this.snapshotUnknownByIntent };
-        delete unknown[key];
-        this.snapshotUnknownByIntent = unknown;
+        this.clearSnapshotPending(projectId, intentId);
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intentId) {
           this.snapshotDigestEntry = response.digest;
           this.snapshotContext = null;
         }
         this.showToast('PlanInput snapshot digest recovered');
       } catch (error) {
+        if (error.status >= 400 && error.status < 500) this.clearSnapshotPending(projectId, intentId);
         if (this.selectedProjectId === projectId && this.selectedIntentId() === intentId) {
-          this.snapshotError = `UNKNOWN: exact request retry failed: ${error.message}`;
+          this.snapshotError = `${this.snapshotUnknownByIntent[key] ? 'UNKNOWN' : 'Seal rejected'}: exact request retry failed: ${error.message}`;
         }
       } finally {
         this.snapshotBusy = false;
