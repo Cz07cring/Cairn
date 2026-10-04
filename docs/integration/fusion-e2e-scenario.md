@@ -38,7 +38,7 @@
 |---|---|---|
 | 浏览器与身份 | 真实浏览器操作建图、至少两个 Intent、选中一个；截图/trace 与 `GET /projects/{id}` 对上图 ID。绑定后只展示权威 Ring 状态。 | 跨用户/跨 project 404 或 403；失联标 `UNKNOWN`；无有效 Release 时不显示 DONE；绑定项目的 Cairn 完成/重开旁路被拒。 |
 | Cairn 图/API | `ring-binding` 唯一；`plan-context` 的图/合同摘要与请求一致；一个 Intent 原键只见一个候选，另一个保持提议。 | 图或合同变更返回冲突；候选回包丢失后同一 operator 用同一请求/键对账，不换键重投。 |
-| Ring Control/PG | Goal、Plan `CANDIDATE→PUBLISHED`、Task、Activity、命令的 ID/状态/版本与授权 API、隔离 PG 同向；最终 Goal DONE 有匹配 ReleaseManifest。 | 202、CANDIDATE、Task DONE、模型文本均不能单独触发 Goal DONE；版本冲突和未决义务须阻断。 |
+| Ring Control/PG | Goal、原 `CANDIDATE`、另行由持租约 PLAN outcome 创建的 `PUBLISHED` Plan、Task、Activity、命令的 ID/状态/版本与授权 API、隔离 PG 同向；来源 ID/digest 可追溯，最终 Goal DONE 有匹配 ReleaseManifest。 | 202、CANDIDATE、Task DONE、模型文本均不能单独触发 Goal DONE；版本冲突和未决义务须阻断。 |
 | Temporal | 固定 namespace/task queue 的 workflow/history 显示 PLAN、EXECUTE、AUDIT、FINALIZE 活动与对应 PG ID；重放不重复外部操作。 | worker 停启和超时后的 history/重试可追溯；只见进程启动不算 poller 在线。 |
 | Runner/三权 | 精确持久进程、近期 task queue poll、lease/heartbeat/fencing、Manager/Executor/Auditor 身份与工作区隔离；实际工具流经 Broker。 | 失租后旧 owner 不能继续提交；Runner 死亡后新 owner 可接管而不扩张权限。 |
 | Broker/Effect Gateway | 修复写入、检查、seal 各有固定 `effect_id`、operation identity、可信 receipt；实际文件 diff 仅在允许路径，执行次数与 receipt 对上。 | 回包丢失/迟到回执保持原键查询；`UNKNOWN` 未对账前不可重发写入或跨最终屏障；禁止路径与网络动作被拒。 |
