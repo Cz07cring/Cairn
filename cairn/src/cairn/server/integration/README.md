@@ -57,3 +57,33 @@ Ring-bound projects reject Cairn reason/worker claims, Intent worker writes,
 `complete`, `reopen`, status changes and deletion. The dispatcher also skips
 Ring-bound projects. B1 does not publish Intent candidates, run Ring tasks, or
 reconcile Ring effects; those remain later batches of the integration plan.
+
+## B2: unclaimed Intent and plan candidate
+
+The project owner can add multiple unclaimed Intent proposals to a bound graph.
+The server replaces the submitted `creator` with the authenticated Ring user
+and requires `worker=null`. Bound projects still reject the old claim,
+heartbeat, release, conclude, complete, Reason CLI, and Explore CLI paths.
+Automatic zero-tool Ring Reason is not connected; the current bridge accepts a
+human-authored complete `PlanCreate` JSON for one selected Intent.
+
+`GET /projects/{id}/plan-context` returns the current graph digest, Goal
+contract revision and digest, expected plan revision, criteria and budget.
+`POST /projects/{id}/intents/{intent_id}/plan-candidate` requires those versions
+and the full Ring `PlanCreate` body, including TaskContracts and coverage. The
+server verifies source Fact IDs, current graph, owner and Ring operator access,
+Goal budget, policy paths, active skill capabilities, and criterion coverage.
+The server prepends a `CairnSource/v1` record to the Ring plan reason; Ring's
+public API has no separate Intent provenance field. Ring validates the full
+contract and stores only a `CANDIDATE`. Ring Planner/Kernel retain publication
+authority; no Cairn endpoint creates a Task or invokes a Runner.
+
+Cairn stores one immutable request body, original Ring operator, and idempotency
+key per Intent before sending it. A lost or unknown response remains `UNKNOWN`
+in the graph. The same Ring operator uses `POST .../plan-candidate/reconcile`
+to replay that exact body with the same key. Ring scopes idempotency by operator;
+a different operator cannot safely replay the request.
+`GET /projects/{id}/plan-candidates` reads all pages of the Goal-scoped Ring
+Plan list and shows local rejection detail and the currently visible Ring plan
+status. A rejected attempt needs a new
+Intent; editing a submitted Intent's request is not allowed.

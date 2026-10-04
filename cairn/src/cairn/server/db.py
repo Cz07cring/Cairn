@@ -96,6 +96,23 @@ CREATE TABLE IF NOT EXISTS ring_bindings (
     state_revision INTEGER NOT NULL CHECK (state_revision > 0),
     latest_seq TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS ring_plan_submissions (
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    intent_id TEXT NOT NULL,
+    submitted_by TEXT NOT NULL,
+    request_digest TEXT NOT NULL,
+    idempotency_key TEXT NOT NULL UNIQUE,
+    request_body TEXT NOT NULL,
+    validated INTEGER NOT NULL DEFAULT 0 CHECK (validated IN (0, 1)),
+    state TEXT NOT NULL CHECK (state IN ('UNKNOWN', 'CANDIDATE', 'REJECTED')),
+    detail TEXT NOT NULL,
+    ring_plan_id TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (project_id, intent_id),
+    FOREIGN KEY (intent_id, project_id) REFERENCES intents(id, project_id) ON DELETE CASCADE
+);
 """
 
 

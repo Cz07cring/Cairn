@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -263,3 +263,12 @@ class RingBindingResponse(BaseModel):
 
 class ProjectMemberRequest(BaseModel):
     role: Literal["viewer"]
+
+
+class PlanCandidateRequest(BaseModel):
+    graph_digest: str
+    goal_contract_revision: int = Field(ge=1)
+    goal_contract_digest: str
+    plan: dict[str, Any]
+
+    model_config = {"extra": "forbid"}
