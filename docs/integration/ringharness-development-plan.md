@@ -10,6 +10,8 @@
 
 执行更新（2026-10-04 23:56，Asia/Shanghai）：C2a 已补会话内原请求保存与刷新恢复，并移除“所选 B2 候选因 Goal DONE 而已完成”的假关联；`de01271` 使所有无权威回读的写入错误继续显示 `UNKNOWN`。C1a 在 `57db02d` 增加同事务原请求指纹映射，授权重试可在图或 Goal 漂移后读回原 digest。独立窄范围 ASGI/SQLite 诊断复跑了旧库升级、回滚、漂移/读接口故障、授权与并发；这不是浏览器或融合 E2E。关闭浏览器标签或清除 `sessionStorage` 后，UI 可能失去原请求，需通过有权限的本地记录核对。C3 向 Ring 提交 PlanInput、C4 受控启动与重新规划仍依赖 R1/R2/R3，尚未启动。B3 决策门保持关闭；全部融合 E2E 层仍为 `not-run`。
 
+执行更新（2026-10-05，Asia/Shanghai）：C1b 已增加按 Intent 和当前主体枚举本地封存请求的授权分页接口；C2b 页面可主动找回列表，并按 digest 授权回读旧候选快照。C1b 的窄范围 ASGI/SQLite 诊断由独立路径复跑，列表 23/23、封存写入 4/4；C2b 只完成页面脚本语法与 diff 检查，真实浏览器尚未验收。两者均不向 Ring 登记 PlanInput，`UNKNOWN` 请求不因列表/回读而自动清除。2026-10-05 只读核对 Issue #81 仍为 OPEN、无 assignee，R1/R2/R3 未获路径认领或释放；Ring 共享工作树有大量在途改动，不能在该树直接写业务码。最终融合 E2E 仍为 `not-run`。
+
 ## 结论和范围
 
 采用 **Cairn fork 作为 UI 与探索投影**：保留 `Fact → Intent → Explore → Reason` 的图、用户 Hint 和探索方向，但这些记录没有执行、验收或终态权限。**Ringharness PostgreSQL、ControlKernel、Temporal 与 ExecutionBroker/Effect Gateway 分别是持久状态、业务裁决、活动编排与外部副作用的权威**。Ring EvidenceLedger、独立 Auditor、最终屏障及 ReleaseManifest 决定可引用证据与 `DONE`。Cairn 的 SQLite 只保存图、绑定和投影游标；不得直接写 Ring PG，也不得用 SQLite `completed`、模型 `complete` 或 HTTP 202 冒充 Ring `DONE`。

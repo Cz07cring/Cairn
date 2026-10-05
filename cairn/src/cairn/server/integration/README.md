@@ -168,3 +168,16 @@ JSON 重新通过当前请求模型、重算作用域指纹等于 `request_finge
 字节摘要等于 `snapshot_digest`、请求与快照的 Intent/图/候选/Fact/Hint/scope
 互相一致；任何篡改或不一致都 503，不回退到当前态猜测。`intent_id` 不存在的
 Intent 404。
+
+## C2b：浏览器中的快照历史找回
+
+绑定项目 owner 在所选 Intent 中点击 **Find sealed snapshots**，浏览器才读取 C1b
+列表；每页 20 条，可按 `next_cursor` 继续加载。列表显示封存时间、快照摘要、
+候选 ID、图摘要及 Fact/Hint ID。点击 **Read authorized snapshot** 后再走现有
+`GET /projects/{id}/plan-snapshots/{digest}` 回读规范 JSON，并核对项目、Intent、
+候选与图摘要。所有图文字仅在主动回读后用 `x-text` 显示。
+
+旧候选的快照标为历史记录，不使当前候选显示 `SEALED SNAPSHOT`。列表与回读均
+不会清除 sessionStorage 中的 `UNKNOWN` 请求，也不会自动重发封存 POST；该请求
+仍须用原请求体重试或人工核对。Ring Goal 暂时不可读时，已有 C1b 列表仍可
+主动查看；本地 SEALED 不表示 Ring `STAGED`、`PUBLISHED`、Task 或 Goal `DONE`。

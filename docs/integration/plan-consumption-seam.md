@@ -1,12 +1,12 @@
 # Cairn 图进入 Ring PLAN 的受控消费缝
 
-日期：2026-10-04（Asia/Shanghai）。状态：**接口方案，未实施、未联调、未验收**。本次只读核对 Cairn HEAD `c20c6a1867e576ea550cf421bdbaed91ccfef29a`、Ringharness HEAD `f61df68049c75ec5bd6bd279f51b196e89722031`。Ring 工作树有在途修改；以下“现行”指核对时的工作树代码，不代表固定提交或已部署实例。没有修改 Ring 业务码，也没有探测生产运行状态。
+日期：2026-10-04（Asia/Shanghai）；开发状态更新：2026-10-05。**Cairn 本地封存与找回已实现；Ring PlanInput 登记、PLAN 消费、融合联调及最终 E2E 未完成。**原始只读核对基于 Cairn `c20c6a1867e576ea550cf421bdbaed91ccfef29a`、Ringharness `f61df68049c75ec5bd6bd279f51b196e89722031`。Ring 工作树有在途修改；以下 Ring“现行”指当时的工作树代码，不代表固定提交或已部署实例。没有修改 Ring 业务码，也没有探测生产运行状态。
 
 ## 结论
 
 **Cairn 图和 Ring `CANDIDATE` 目前均未进入 Ring 的零工具 PLAN 模型输入。** Cairn B2 把人工填写的完整 `PlanCreate` 以 operator 会话提交 `POST /api/v1/goals/{goal_id}/plans`，Ring 只保存 `CANDIDATE`，不给 `plan_revision`，也不创建 Task。现行公开 API 没有“采纳此候选并发布”的入口。真正发布由持有 PLAN Activity 租约的 Runner 提交 `POST /internal/v1/activities/{activity_id}/outcomes`，Kernel 的 `submit_plan_outcome` 校验并在一个事务中写 `PUBLISHED` Plan、Task、根 EXECUTE Activity 和 Goal `RUNNING`。
 
-要让 Cairn 影响规划，建议增设 **Ring 控制面持有的、版本固定的 `PlanInput/v1` 数据入口**。Cairn 只选择图中的 Fact/Intent/Hint 并形成有界摘要；Ring 重新核对 Goal scope、版本和所引用候选，封存输入；ContextCompiler 把封存物绑定至该 PLAN attempt；Runner 只在租约内读取、核对摘要并作为**带来源标记的数据**交给零工具 Planner。Planner 仍须产出新的完整 `PlanCreate`；不能把 `CANDIDATE`、Hint、AB08 user-message 或 Cairn 的 `completed` 状态直接当成 Task/Plan 发布命令。下述路由和字段均为**拟议接口**，不得当作现有能力调用。
+要让 Cairn 影响规划，建议增设 **Ring 控制面持有的、版本固定的 `PlanInput/v1` 数据入口**。Cairn 只选择图中的 Fact/Intent/Hint 并形成有界摘要；Ring 重新核对 Goal scope、版本和所引用候选，封存输入；ContextCompiler 把封存物绑定至该 PLAN attempt；Runner 只在租约内读取、核对摘要并作为**带来源标记的数据**交给零工具 Planner。Planner 仍须产出新的完整 `PlanCreate`；不能把 `CANDIDATE`、Hint、AB08 user-message 或 Cairn 的 `completed` 状态直接当成 Task/Plan 发布命令。下述 Ring 路由和字段仍为**拟议接口**，不得当作现有能力调用；Cairn 本地快照路由已在后续批次实现。
 
 ```mermaid
 flowchart LR
@@ -47,8 +47,8 @@ flowchart LR
 
 | 拟议接口或内部边界 | 请求/响应与限制 |
 |---|---|
-| Cairn `POST /projects/{id}/plan-snapshots` | owner + 当前 Ring operator/project scope；提交 `selected_intent_id`、明确的 `fact_ids`/`hint_ids`、`graph_digest`、Goal `contract_revision`/`contract_digest`、`expected_plan_revision`、可选 `candidate_plan_id`。服务器重新读同一 SQLite 事务中的图，检查来源边和绑定，生成不可变 `PlanInput/v1` 的 Cairn 部分；同一选择同一版本返回相同 digest。此接口未存在。 |
-| Cairn `GET /projects/{id}/plan-snapshots/{digest}` | 仅授权主体可读已封存的规范 JSON 和摘要；供审查和故障恢复。**Cairn 的图 digest 证明其本地字节一致，不证明 Fact 为可信 Evidence。** 此接口未存在。 |
+| Cairn `POST /projects/{id}/plan-snapshots` | **已实现本地封存**：owner + 当前 Ring operator/project scope；提交 `selected_intent_id`、明确的 `fact_ids`/`hint_ids`、`graph_digest`、Goal `contract_revision`/`contract_digest`、`expected_plan_revision`、`candidate_plan_id`。服务端重读当前图与候选并封存规范 JSON；同一请求指纹持久映射到 digest。仅是 Cairn 本地 SEALED，未登记 Ring PlanInput。 |
+| Cairn `GET /projects/{id}/plan-snapshots/{digest}`、`GET /projects/{id}/plan-snapshot-requests?intent_id=...` | **已实现本地授权回读与分页找回**：前者返回规范 JSON 和摘要，后者列出本人对该 Intent 的封存请求映射；C2b 页面提供主动查找和授权回读。**Cairn 的图 digest 证明其本地字节一致，不证明 Fact 为可信 Evidence。** |
 | Ring `POST /api/v1/goals/{goal_id}/plan-inputs` | operator + 项目 scope + `Idempotency-Key`。提交下述规范快照、Cairn binding ID、`candidate_plan_id`；Ring 在事务中检查 Goal/合同/计划版本、信任状态、candidate 属同一 Goal 且仍为 `CANDIDATE`，读它的 `content_digest` 和规范计划字段；重算摘要、检查大小/路径/预算提示、封存 Ring `plan_input_id`、`content_digest`、状态 `STAGED`。返回 ID/digest，不返回 Task。此接口未存在。 |
 | Ring `GET /api/v1/goals/{goal_id}/plan-inputs/{id}` | 受 scope 保护，显示来源、版本、digest、`STAGED/BOUND/STALE` 和绑定的 PLAN Activity/attempt；丢回包后按原键或 ID 查询。此接口未存在。 |
 | Ring PLAN admit/ContextCompiler | `plan_input_mode=REQUIRED` 时，claim 在无有效 PlanInput 下不准入；在 PLAN claim 前对 `READY` Activity 原子钉住**一个** `plan_input_id` 与 digest；若已存在 ACTIVE attempt，拒绝替换。ContextCompiler 以 `CANDIDATE` 分类把封存摘要 artifact 加到 `input_bindings`，并把精确输入 ID/digest 绑定该 attempt。若不能在 claim/compile 与版本检查之间实现原子钉扎，此批不得启用。 |
@@ -72,7 +72,7 @@ Ring 应把图文字与候选内容一律标成**未经验证的提议**。候�
 
 ## `owned_paths` 与释放
 
-本文件只修改 Cairn `docs/integration/plan-consumption-seam.md`。以下是**后续认领建议，不是本次已获写权限**；每批登记 owner、batch、`owned_paths`、`depends_on`、verification_owner、reviewed_by、status、PR、merged_by，并在动工前核对共享工作树/Issue 的现行占用。
+下表记录原始路径认领方案；Cairn C1 已在后续批次实现本地封存和找回。Ring R1/R2/R3 仍需按现行 Issue 与共享工作树占用确认 owner、batch、`owned_paths`、`depends_on`、verification_owner、reviewed_by、status、PR、merged_by。
 
 | 批次 | 建议 `owned_paths`、依赖与释放条件 |
 |---|---|
