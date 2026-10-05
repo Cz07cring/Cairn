@@ -3,6 +3,10 @@
 <img src="./README/banner.png" alt="Cairn Banner"/>
 
 # Cairn
+
+> Ringharness 融合分支正在开发：`runtime/ringharness/` 已导入固定源码提交，
+> 当前 `docker-compose.yaml` 仍只运行原 Cairn 服务。源码来源、未接通的
+> 运行链和后续验收边界见 [Ringharness 源码导入记录](docs/integration/ringharness-source.md)。
 ### More Than Just AI Penetration Testing — Towards General State-Space Search
 
 <p>
