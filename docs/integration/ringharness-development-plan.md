@@ -1,5 +1,13 @@
 # Cairn fork × Ringharness：隔离软件仓库纵向开发计划
 
+> 2026-10-05 用户更新目标：最终交付为 **Cairn fork 单一代码仓**，将固定版本的
+> Ringharness 源码导入仓内并提供同仓启动。下文原有“双仓 API 集成”图描述
+> 开发过渡阶段；最终产品仍以 Ring PG/Kernel、Temporal、Runner 和 Broker
+> 为各自运行权威。源码同仓不合并进一个进程，也不让 Cairn SQLite 接管
+> Goal/Task/DONE 或副作用。迁移批次 M1 插在 C4 与 B3 之间；B3/B4
+> 和最终 E2E 必须基于导入后的同仓候选执行。M1 在 R1/R2/R3 稳定提交后
+> 导入精确 Git SHA，保留源码更新和许可证记录，并建立同仓配置与启动命令。
+
 日期：2026-10-04（Asia/Shanghai）。状态：**分阶段实施中，未联调、未验收**。最初只读核对的 Cairn HEAD 为 `8e7e0ea67552383851dfcabfba0c4e9c8d007878`，Ringharness HEAD 为 `f61df68049c75ec5bd6bd279f51b196e89722031`；Ringharness 工作树有在途改动，因此下述“已存在”只指当时看到的源码，不代表已部署实例可用。Cairn 与 Ringharness 的生产身份、目标、运行数据均未探测。
 
 执行更新（2026-10-04 23:30，Asia/Shanghai）：方案编写后的 Cairn fork 分支 `ringharness-integration` 已提交 B1 产品入口/只读绑定与 B2 人工完整 `PlanCreate` 候选桥接，当时提交为 `c20c6a1`。这些提交只做过窄范围语法、导入和静态核对，尚未完成真实浏览器、Ring Control、Temporal、Broker、审计或恢复的端到端验收。B2 的公开候选不会自动成为 `PUBLISHED` Plan；B2b/B2c 先解决零工具 PLAN 输入与发布接线。B3/B4 和最终 E2E 未启动。

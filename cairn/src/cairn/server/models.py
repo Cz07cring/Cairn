@@ -294,3 +294,9 @@ class PlanSnapshotRequest(BaseModel):
         if str(parsed) != value:
             raise ValueError("candidate_plan_id must be a canonical UUID")
         return value
+
+
+class PlanInputRegistrationRequest(BaseModel):
+    snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    model_config = {"extra": "forbid"}

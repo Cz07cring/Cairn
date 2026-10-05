@@ -139,6 +139,23 @@ CREATE TABLE IF NOT EXISTS ring_plan_snapshot_requests (
     intent_id TEXT,
     created_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS ring_plan_input_registrations (
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    snapshot_digest TEXT NOT NULL REFERENCES ring_plan_snapshots(digest) ON DELETE CASCADE,
+    ring_project_id TEXT NOT NULL,
+    ring_goal_id TEXT NOT NULL,
+    actor TEXT NOT NULL,
+    idempotency_key TEXT NOT NULL UNIQUE,
+    request_json BLOB NOT NULL,
+    state TEXT NOT NULL CHECK (state IN ('UNKNOWN', 'ACKED')),
+    ring_plan_input_id TEXT,
+    ring_content_digest TEXT,
+    ring_status TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (project_id, snapshot_digest, actor)
+);
 """
 
 

@@ -14,9 +14,12 @@ from cairn.server.integration.intent_bridge import canonical, digest, graph_dige
 from cairn.server.integration.plan_snapshot import (
     decode_snapshot, read_candidate_summary, seal_snapshot,
 )
+from cairn.server.integration.plan_input_registration import (
+    accept_registration, prepare_registration, registration_view,
+)
 from cairn.server.integration.ring_client import (
     RingContractUnknown, RingDenied, RingUnavailable, RingWriteRejected,
-    read_collection, submit_plan_candidate,
+    read_collection, submit_plan_candidate, submit_plan_input,
 )
 from cairn.server.models import (
     ConcludeRequest,
@@ -26,6 +29,7 @@ from cairn.server.models import (
     HeartbeatRequest,
     Intent,
     PlanCandidateRequest,
+    PlanInputRegistrationRequest,
     PlanSnapshotRequest,
 )
 from cairn.server.services import (
@@ -308,6 +312,80 @@ def list_plan_snapshot_requests(
         next_cursor = _snapshot_request_cursor(rows[limit - 1]["created_at"],
                                                rows[limit - 1]["request_fingerprint"])
     return {"items": items, "next_cursor": next_cursor, "truncated": truncated, "limit": limit}
+
+
+@router.post("/projects/{project_id}/plan-inputs")
+def register_plan_input(project_id: str, body: PlanInputRegistrationRequest, request: Request):
+    """Persist the original request before registering one sealed snapshot in Ring."""
+    if not product_mode():
+        raise HTTPException(404, "Ring PlanInput registration is unavailable")
+    principal = request.state.ring_principal
+    if "operator" not in principal["roles"]:
+        raise HTTPException(403, "Ring operator role required")
+    actor = principal["user_id"]
+    with get_conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        if project_role(conn, project_id, actor) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if binding is None or binding["ring_project_id"] not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        row, snapshot = prepare_registration(
+            conn, project_id=project_id, actor=actor,
+            ring_project_id=binding["ring_project_id"], ring_goal_id=binding["ring_goal_id"],
+            snapshot_digest=body.snapshot_digest,
+        )
+        if row["state"] == "ACKED":
+            return registration_view(row)
+        saved_key = row["idempotency_key"]
+        saved_body = bytes(row["request_json"])
+        ring_goal_id = row["ring_goal_id"]
+    try:
+        result = submit_plan_input(
+            request.state.ring_config, request.state.ring_cookie,
+            principal["csrf_token"], ring_goal_id, saved_key, saved_body,
+        )
+    except (RingUnavailable, RingContractUnknown, RingWriteRejected):
+        # Even a definitive HTTP rejection does not prove that an earlier
+        # request with the same key never committed. Keep the original write UNKNOWN.
+        return registration_view(row)
+    with get_conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        if project_role(conn, project_id, actor) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if (binding is None or binding["ring_project_id"] != row["ring_project_id"]
+                or binding["ring_goal_id"] != ring_goal_id
+                or binding["ring_project_id"] not in principal["project_ids"]):
+            raise HTTPException(409, "Ring binding changed; result UNKNOWN")
+        accepted = accept_registration(conn, row=row, snapshot=snapshot, ring_result=result)
+    return registration_view(accepted)
+
+
+@router.get("/projects/{project_id}/plan-inputs/{snapshot_digest}")
+def get_plan_input_registration(project_id: str, snapshot_digest: str, request: Request):
+    """Read the caller's last local acknowledgment without asserting Ring current state."""
+    if not product_mode():
+        raise HTTPException(404, "Ring PlanInput registration is unavailable")
+    principal = request.state.ring_principal
+    actor = principal["user_id"]
+    with get_conn() as conn:
+        if project_role(conn, project_id, actor) != "owner":
+            raise HTTPException(403, "Project owner required")
+        binding = binding_for(conn, project_id)
+        if binding is None or binding["ring_project_id"] not in principal["project_ids"]:
+            raise HTTPException(404, "Project not found")
+        row = conn.execute(
+            """SELECT * FROM ring_plan_input_registrations
+               WHERE project_id=? AND snapshot_digest=? AND actor=?""",
+            (project_id, snapshot_digest, actor),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(404, "PlanInput registration not found")
+        if (row["ring_project_id"] != binding["ring_project_id"]
+                or row["ring_goal_id"] != binding["ring_goal_id"]):
+            raise HTTPException(409, "Ring binding changed; result UNKNOWN")
+    return registration_view(row)
 
 
 @router.post(

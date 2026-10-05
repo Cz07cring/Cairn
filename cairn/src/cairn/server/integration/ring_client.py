@@ -187,3 +187,38 @@ def submit_plan_candidate(
         message = error.get("message") if isinstance(error, dict) else None
         raise RingWriteRejected(response.status_code, message if isinstance(message, str) else "Ring rejected candidate")
     raise RingUnavailable("Ring plan result is unknown")
+
+
+def submit_plan_input(
+    config: RingConfig, cookie: str, csrf_token: str, goal_id: str,
+    idempotency_key: str, request_bytes: bytes,
+) -> dict[str, Any]:
+    """用固定正文和原幂等键登记 Cairn 快照；异常一律不推断写入失败。"""
+    try:
+        response = requests.post(
+            f"{config.base_url}/api/v1/goals/{goal_id}/plan-inputs",
+            cookies={"ring_session": cookie},
+            headers={"Accept": "application/json", "Content-Type": "application/json",
+                     "X-CSRF-Token": csrf_token,
+                     "Idempotency-Key": idempotency_key},
+            data=request_bytes, timeout=10, allow_redirects=False,
+        )
+    except requests.RequestException as exc:
+        raise RingUnavailable("Ring PlanInput result is unknown") from exc
+    try:
+        envelope = response.json()
+    except ValueError as exc:
+        raise RingContractUnknown("Ring PlanInput response is not JSON") from exc
+    if response.status_code == 201:
+        data = envelope.get("data") if isinstance(envelope, dict) else None
+        if not isinstance(data, dict):
+            raise RingContractUnknown("Ring PlanInput response is unknown")
+        return data
+    if response.status_code in {401, 403, 404, 409, 422}:
+        error = envelope.get("error") if isinstance(envelope, dict) else None
+        message = error.get("message") if isinstance(error, dict) else None
+        raise RingWriteRejected(
+            response.status_code,
+            message if isinstance(message, str) else "Ring rejected PlanInput",
+        )
+    raise RingUnavailable("Ring PlanInput result is unknown")
