@@ -72,14 +72,14 @@ Ring 应把图文字与候选内容一律标成**未经验证的提议**。候�
 
 ## `owned_paths` 与释放
 
-下表记录原始路径认领方案；Cairn C1 已在后续批次实现本地封存和找回。Ring R1/R2/R3 仍需按现行 Issue 与共享工作树占用确认 owner、batch、`owned_paths`、`depends_on`、verification_owner、reviewed_by、status、PR、merged_by。
+下表记录原始路径认领方案；Cairn C1 已在后续批次实现本地封存和找回。2026-10-05 用户决定不再由 Hermes 开发，Codex 已在 Ring Issue #81 认领 R1/R2/R3，并在独立 worktree 启动 R1a。下表的原 Cursor/Hermes 分工仅保留为历史设计；实际批次和验收状态以 Issue、源码提交及端到端工件为准。
 
 | 批次 | 建议 `owned_paths`、依赖与释放条件 |
 |---|---|
 | C1 Cairn 封存 | Cairn owner：`cairn/src/cairn/server/integration/{intent_bridge.py,ring_client.py,plan_snapshot.py}`、`cairn/src/cairn/server/routers/intents.py`、必要 SQLite migration/UI；依赖 B1/B2 身份和候选桥。只写 Cairn；先与并行 Cairn owner 确认路径释放。 |
-| R1 Ring 输入登记/编译 | **Cursor 路径**：`apps/control/src/control_api/routes/**`、`packages/control_kernel/src/control_kernel/{protocols,storage}/**`、`packages/context_compiler/**`、迁移及生成契约；Cursor 需在 Ring 批次/Issue 明确认领，若这些路径已在途先等原 owner 释放。Codex 只做独立审查。不得手改 `packages/api-client/src/generated.ts`。 |
-| R2 Runner PLAN 消费 | **Cursor 路径**：`apps/runner/src/harness/{controlHttpPorts.ts,cordisLlmBridge.ts,livePlanCreate.ts}`、`apps/runner/src/temporal/runActivation.ts`；依赖 R1 的 artifact/ContextBundle 契约及与当前 Runner 在途修改的明确释放。实现必须记录模型输入摘要和模型调用 ID。 |
-| R3 编排调整（仅若 R1/R2 无法在现有 admit 前封存） | **Hermes 路径**：`packages/orchestration/**`、`tests/temporal/**`，由 Hermes 认领并与 Cursor 协商跨界；不把 Temporal Workflow COMPLETED 当成 Goal DONE。Cursor 如需触碰这些路径，先获 Hermes 明确释放。Ring 业务码本次均未触碰。 |
+| R1 Ring 输入登记/编译 | **Codex 本次认领**：`apps/control/src/control_api/routes/**`、`packages/control_kernel/src/control_kernel/{protocols,storage}/**`、`packages/context_compiler/**`、迁移及生成契约；在隔离 worktree 按 R1a 登记、R1b 准入与绑定的顺序推进。不得手改 `packages/api-client/src/generated.ts`。 |
+| R2 Runner PLAN 消费 | **Codex 本次认领**：`apps/runner/src/harness/{controlHttpPorts.ts,cordisLlmBridge.ts,livePlanCreate.ts}`、`apps/runner/src/temporal/runActivation.ts`；依赖 R1 的 artifact/ContextBundle 契约。实现必须记录模型输入摘要和模型调用 ID。 |
+| R3 编排待输入唤醒 | **Codex 本次认领**：`packages/orchestration/**`；依赖 R1b。PLAN 无有效输入时必须保持可恢复等待，登记输入后可靠唤醒；不把 Temporal Workflow COMPLETED 当成 Goal DONE。 |
 
 ## 端到端验收缝
 

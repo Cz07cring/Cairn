@@ -10,7 +10,7 @@
 
 执行更新（2026-10-04 23:56，Asia/Shanghai）：C2a 已补会话内原请求保存与刷新恢复，并移除“所选 B2 候选因 Goal DONE 而已完成”的假关联；`de01271` 使所有无权威回读的写入错误继续显示 `UNKNOWN`。C1a 在 `57db02d` 增加同事务原请求指纹映射，授权重试可在图或 Goal 漂移后读回原 digest。独立窄范围 ASGI/SQLite 诊断复跑了旧库升级、回滚、漂移/读接口故障、授权与并发；这不是浏览器或融合 E2E。关闭浏览器标签或清除 `sessionStorage` 后，UI 可能失去原请求，需通过有权限的本地记录核对。C3 向 Ring 提交 PlanInput、C4 受控启动与重新规划仍依赖 R1/R2/R3，尚未启动。B3 决策门保持关闭；全部融合 E2E 层仍为 `not-run`。
 
-执行更新（2026-10-05，Asia/Shanghai）：C1b 已增加按 Intent 和当前主体枚举本地封存请求的授权分页接口；C2b 页面可主动找回列表，并按 digest 授权回读旧候选快照。C1b 的窄范围 ASGI/SQLite 诊断由独立路径复跑，列表 23/23、封存写入 4/4；C2b 只完成页面脚本语法与 diff 检查，真实浏览器尚未验收。两者均不向 Ring 登记 PlanInput，`UNKNOWN` 请求不因列表/回读而自动清除。2026-10-05 只读核对 Issue #81 仍为 OPEN、无 assignee，R1/R2/R3 未获路径认领或释放；Ring 共享工作树有大量在途改动，不能在该树直接写业务码。最终融合 E2E 仍为 `not-run`。
+执行更新（2026-10-05，Asia/Shanghai）：C1b 已增加按 Intent 和当前主体枚举本地封存请求的授权分页接口；C2b 页面可主动找回列表，并按 digest 授权回读旧候选快照。C1b 的窄范围 ASGI/SQLite 诊断由独立路径复跑，列表 23/23、封存写入 4/4；C2b 只完成页面脚本语法与 diff 检查，真实浏览器尚未验收。两者均不向 Ring 登记 PlanInput，`UNKNOWN` 请求不因列表/回读而自动清除。随后用户决定不再由 Hermes 开发；Codex 已在 Ring Issue #81 认领 R1/R2/R3，并在独立 Ring worktree 开始 R1a 输入登记。R1a 尚无可验收提交；Ring 共享工作树有大量在途改动，不能在该树直接写业务码。最终融合 E2E 仍为 `not-run`。
 
 ## 结论和范围
 
