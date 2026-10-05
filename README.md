@@ -7,6 +7,8 @@
 > Ringharness 融合分支正在开发：`runtime/ringharness/` 已导入固定源码提交，
 > 当前 `docker-compose.yaml` 仍只运行原 Cairn 服务。源码来源、未接通的
 > 运行链和后续验收边界见 [Ringharness 源码导入记录](docs/integration/ringharness-source.md)。
+> 融合后的产品保留 Cairn 的 Origin 与 Goal 两端，以及逐步生长的 Fact/Intent
+> 路径；执行和验收边界见 [图优先架构](docs/integration/graph-first-architecture.md)。
 ### More Than Just AI Penetration Testing — Towards General State-Space Search
 
 <p>

@@ -7,6 +7,12 @@
 > Goal/Task/DONE 或副作用。迁移批次 M1 插在 C4 与 B3 之间；B3/B4
 > 和最终 E2E 必须基于导入后的同仓候选执行。M1 在 R1/R2/R3 稳定提交后
 > 导入精确 Git SHA，保留源码更新和许可证记录，并建立同仓配置与启动命令。
+>
+> 产品语义修正：Cairn 在项目创建时固定 Origin 与 Goal 两端，Fact/Intent
+> 路径逐步生长。Ring Goal 只承载终点的执行合同，不预定义整条路径；每轮
+> Intent 经 Ring 受控执行，证据回流为 Fact，再进入下一轮。现有 B2 手工
+> 完整 PlanCreate 是过渡入口，不能充当默认图循环。详见
+> [图优先架构](graph-first-architecture.md)。
 
 日期：2026-10-04（Asia/Shanghai）。状态：**分阶段实施中，未联调、未验收**。最初只读核对的 Cairn HEAD 为 `8e7e0ea67552383851dfcabfba0c4e9c8d007878`，Ringharness HEAD 为 `f61df68049c75ec5bd6bd279f51b196e89722031`；Ringharness 工作树有在途改动，因此下述“已存在”只指当时看到的源码，不代表已部署实例可用。Cairn 与 Ringharness 的生产身份、目标、运行数据均未探测。
 
