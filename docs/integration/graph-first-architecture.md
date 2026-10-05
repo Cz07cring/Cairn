@@ -87,6 +87,12 @@ PlanInput 接线是开发候选。当前绑定项目没有自动 OODA；人工�
 增加了操作步骤。因此现状相对原 Cairn 是体验退化，尚无证据证明长程任务
 能力带来的收益超过新增控制面、部署和故障恢复成本。
 
+另一个结构性缺口在 Ring 的现有 `PLAN_INPUT_REQUIRED` 路径：Kernel 登记
+PlanInput 前要求 Ring 已有完整的 CANDIDATE PlanCreate，随后 PLAN attempt
+才消费该输入。若默认路径要让 Manager 从 Cairn Intent **生成**本轮计划，
+这个先后顺序必须调整为“封存 Intent → Manager 提议计划 → Kernel 校验并
+采纳”。不能让用户先写完整计划，再声称 Manager 保留了 Cairn 的探索能力。
+
 Ring 的增量价值必须来自长程执行：有界预算与权限、重启后继续、外部效果
 幂等、独立证据和最终验收。Cairn 已经负责图上探索与多轮提议；Ring 不应
 再复制一套黑板、Reason 或探索调度。两个调度范围须明确：Cairn 决定何时
