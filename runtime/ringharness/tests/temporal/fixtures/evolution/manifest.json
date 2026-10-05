@@ -1,0 +1,847 @@
+{
+  "workflow_modules": [
+    "packages/orchestration/src/orchestration/temporal_workflows.py"
+  ],
+  "workflow_revisions": [
+    {
+      "id": "b102-baseline",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "eb9b604b683a23f27ddc0665b40bdb6042460f92e991fd222f81531e15f74e1a",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1"
+      ]
+    },
+    {
+      "id": "recovery-safety-gate-v1",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "c58efc0f07f9c04229b38da1080a1a495e473ebaed37d447690ca5d1bfee731d",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1"
+      ]
+    },
+    {
+      "id": "evolution-gate-b102-sync",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "92a278d758973d4a39f05062a266dde02ee98d9a41843d780b9d2a6a50469c29",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1"
+      ]
+    },
+    {
+      "id": "goal-review-periodic-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "27277aa621538936657ea6f8d8b26c2c93933ecc634972f94a9c56d20265ca12",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "goal-review-periodic-v1"
+      ]
+    },
+    {
+      "id": "goal-review-seq-base-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "ec7ba84eea1a22dfedf5dcf279888f2d370236a5e6dbfad4cc3a764cf6d29755",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "goal-review-periodic-v1",
+        "goal-review-seq-base-v1"
+      ]
+    },
+    {
+      "id": "advance-on-ready-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "70eec33be11c4b0874d668f99b9e47f8af66205d33d773283b7f0c0ee238d67c",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "goal-review-periodic-v1",
+        "goal-review-seq-base-v1",
+        "advance-on-ready-v1"
+      ]
+    },
+    {
+      "id": "admit-all-kinds-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "32f3877af04ca65232ea744474055c091933175432d78f813c419b91ab652a81",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "goal-review-periodic-v1",
+        "goal-review-seq-base-v1",
+        "advance-on-ready-v1",
+        "admit-all-kinds-v1"
+      ]
+    },
+    {
+      "id": "runner-authority-queues-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "097304f88775bd3532c3d04044b2f515a5fa185228cd5f2d55c5deeca8fe1784",
+      "patch_ids": [
+        "b086-temporal-recovery-v1",
+        "m3-execute-orchestration-v1",
+        "recovery-safety-gate-v1",
+        "observe-backoff-v1",
+        "activity-retry-bounded-v1",
+        "recovery-enabled-switch-v1",
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "goal-review-periodic-v1",
+        "goal-review-seq-base-v1",
+        "advance-on-ready-v1",
+        "admit-all-kinds-v1",
+        "runner-authority-queues-v1"
+      ]
+    },
+    {
+      "id": "can-budget-carry-v1-revision",
+      "workflow_module": "packages/orchestration/src/orchestration/temporal_workflows.py",
+      "semantic_ast_sha256": "64946febbc59ff1b144b1d68d75489fbf804a81d97a37605f610156b5a7b3ff8",
+      "patch_ids": [
+        "abandon-persistence-v1",
+        "activation-budget-v1",
+        "activity-retry-bounded-v1",
+        "admit-all-kinds-v1",
+        "advance-on-ready-v1",
+        "b086-temporal-recovery-v1",
+        "can-budget-carry-v1",
+        "goal-review-periodic-v1",
+        "goal-review-seq-base-v1",
+        "m3-execute-orchestration-v1",
+        "observe-backoff-v1",
+        "recovery-enabled-switch-v1",
+        "recovery-safety-gate-v1",
+        "runner-authority-queues-v1"
+      ]
+    }
+  ],
+  "patches": [
+    {
+      "id": "b086-temporal-recovery-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "030afaa0b33e03f8014c9063d9b321b36ec2aebd",
+      "producer_node": "tests/temporal/test_tm03_history_replay.py::_GoalWorkflowBeforeB087",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_tm03_history_replay.py::test_tm03_b086_patch_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_b086_new_history_replays_with_single_activation_attempt",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "m3-execute-orchestration-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "fe4821b996ddc8adf7e111612928d57ce247a059",
+      "producer_node": "tests/temporal/test_m3_execute_orchestration.py::_GoalWorkflowIgnoreExecuteInList",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/m3-ignore-execute-history.json",
+      "old_history_sha256": "7ce8be43a31a7736f9f7d0d3b3927fe2c64e766ead5baa2e7b3b8bcb3f7102a3",
+      "old_history_test": "tests/temporal/test_m3_execute_orchestration.py::test_m3_patch_replays_history_that_ignored_execute_in_list",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_m3_new_execute_history_replays_with_execute_admission",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "admit_plan_action"
+          ],
+          "forbidden_activities": [
+            "admit_execute_action"
+          ]
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_execute_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "admit_execute_action"
+          ],
+          "forbidden_activities": []
+        }
+      }
+    },
+    {
+      "id": "recovery-safety-gate-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "174afbd9c445358ed5f7fad96f6a56745c7cb76e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/recovery-pre-change-history.json",
+      "old_history_sha256": "fb132dc104ce6c2a5161bfa9bdb551ba8b31dbe3426d9e4492110cf6042b85ff",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_recovery_gate_replays_pre_change_generation_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_recovery_gate_new_history_abandons_before_runtime_actions",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "list_runtime_actions"
+          ],
+          "forbidden_activities": []
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "record_recovery_abandonment"
+          ],
+          "required_activities": [
+            "ensure_goal_delivery",
+            "record_recovery_abandonment"
+          ],
+          "forbidden_activities": [
+            "list_runtime_actions"
+          ]
+        }
+      }
+    },
+    {
+      "id": "observe-backoff-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "cb1f7c2cb53b84d1c53668b0552a81c74b715f85",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_observe_backoff_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_observe_backoff_new_history_keeps_observe_retry_bounded",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "activity-retry-bounded-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "0acc386973995eb6d3f5114e0c7e490e7c5ea31e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_activity_retry_bounded_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_activity_retry_bounded_new_history_bounds_run_activation_retry",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "recovery-enabled-switch-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "b10b3ab6579caed89a01ebe4a7eca11702a12c9e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_recovery_enabled_switch_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_recovery_enabled_switch_new_history_exposes_budget_notes",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "abandon-persistence-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "eb48325de8d34a8e5da78ea0ad88d22afbdb67a2",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_abandon_persistence_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_abandon_persistence_new_history_marks_no_goal_done",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "activation-budget-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "86cc3cb22cf8616e1e8c4b40a566ab20e70f22b2",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_activation_budget_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_activation_budget_new_history_dispatches_run_activation",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "goal-review-periodic-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "061d97bc2111467fdda7a4e84983442d95d2086a",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_goal_review_periodic_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_goal_review_periodic_new_history_keeps_default_off",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "goal-review-seq-base-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "4647c6e2075b7ff8748eecad946fd7e0ed15261e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_goal_review_seq_base_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_goal_review_seq_base_new_history_default_off",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "advance-on-ready-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "4647c6e2075b7ff8748eecad946fd7e0ed15261e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_advance_on_ready_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_advance_on_ready_new_history_lists_once_more",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "admit-all-kinds-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "4647c6e2075b7ff8748eecad946fd7e0ed15261e",
+      "producer_node": "packages/orchestration/src/orchestration/temporal_workflows.py::GoalWorkflow",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_admit_all_kinds_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_admit_all_kinds_new_history_unchanged_for_plan_only",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [
+            "request_goal_review"
+          ],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "runner-authority-queues-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "030afaa0b33e03f8014c9063d9b321b36ec2aebd",
+      "producer_node": "tests/temporal/test_tm03_history_replay.py::_GoalWorkflowBeforeB087",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/b086-pre-change-history.json",
+      "old_history_sha256": "eaa06c9888d791f108d26c78f9c86930d5d905a9ad6d445deb90970d24e76219",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_runner_authority_queues_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_runner_authority_queues_new_history_routes_plan",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 0
+          },
+          "task_queues": {
+            "RunActivation": "ring-runner"
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          },
+          "task_queues": {
+            "RunActivation": "ring-runner-manager"
+          }
+        }
+      }
+    },
+    {
+      "id": "can-budget-carry-v1",
+      "sanitize_profile": "temporal-history-v1",
+      "producer_commit": "de44ce4b0124f29638236affeafd6232f459a1ec",
+      "producer_node": "runtime-capture::goal-257ec01d-replan-4210a9c0-run1",
+      "workflow_type": "GoalWorkflow",
+      "temporal_sdk": "temporalio==1.32.0",
+      "old_history_fixture": "tests/temporal/fixtures/evolution/can-budget-pre-change-history.json",
+      "old_history_sha256": "ecbd2bd042bdaefc9635c99486c37b620efd046f2d4c994bfdd3e1a345228a30",
+      "old_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_can_budget_carry_replays_pre_change_history",
+      "new_history_test": "tests/temporal/test_temporal_evolution_gate.py::test_can_budget_carry_new_history_carries_budget",
+      "history_expectations": {
+        "old": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "admit_plan_action",
+            "RunActivation",
+            "observe_activity_status",
+            "list_runtime_actions"
+          ],
+          "required_activities": [
+            "RunActivation"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {
+            "RunActivation": 1
+          },
+          "task_queues": {
+            "RunActivation": "ring-runner-manager"
+          }
+        },
+        "new": {
+          "activity_sequence": [
+            "ensure_goal_delivery",
+            "list_runtime_actions",
+            "observe_carried_activation_activity_status"
+          ],
+          "required_activities": [
+            "observe_carried_activation_activity_status"
+          ],
+          "forbidden_activities": [],
+          "retry_maximum_attempts": {},
+          "task_queues": {}
+        }
+      }
+    }
+  ],
+  "continue_as_new_fields": [
+    "command_id",
+    "goal_id",
+    "owner_epoch",
+    "command_ids_consumed",
+    "skip_admit_activity_ids",
+    "admitted_attempt_ids",
+    "generation",
+    "prior_run_id",
+    "observe_max_ticks",
+    "enable_continue_as_new",
+    "continue_as_new_on_observe_timeout",
+    "checkpoint_schema_version",
+    "recovery_attempts",
+    "max_recovery_attempts",
+    "intent_valid_until",
+    "intent_ttl_seconds",
+    "recovery_enabled",
+    "goal_reviews_requested",
+    "runner_authority_queues",
+    "advance_hops",
+    "max_advance_hops",
+    "advanced_activity_ids"
+  ],
+  "continue_as_new_contract": {
+    "double_rollover_test": "tests/temporal/test_temporal_evolution_gate.py::test_two_continue_as_new_runs_preserve_evolution_watermark"
+  }
+}

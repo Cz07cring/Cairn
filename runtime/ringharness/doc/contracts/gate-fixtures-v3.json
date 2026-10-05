@@ -1,0 +1,198 @@
+{
+  "spec_version": "v0.5",
+  "scope": "single required slot fixed-rule examples only; not real concurrency tests",
+  "aggregation": [
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "all_pass",
+      "expected": "PASS"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "FAIL",
+          "valid": true
+        }
+      ],
+      "audits": [],
+      "name": "failed_run_no_audit",
+      "expected": "FAIL"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "FAIL",
+          "valid": true
+        },
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "old_failed_run_new_pass",
+      "expected": "FAIL"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 1,
+      "assessments": [],
+      "audits": [],
+      "name": "run_transaction_not_committed",
+      "expected": "INSUFFICIENT"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [],
+      "name": "missing_formal_audit",
+      "expected": "INSUFFICIENT"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 1,
+      "assessments": [
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "pending_obligation",
+      "expected": "INSUFFICIENT"
+    },
+    {
+      "trust": "BLOCKED",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "trust_blocked",
+      "expected": "INSUFFICIENT"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "FAIL",
+          "valid": false
+        },
+        {
+          "verdict": "PASS",
+          "valid": true
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "invalid_source_removed_with_record",
+      "expected": "PASS"
+    },
+    {
+      "trust": "OPEN",
+      "pending": 0,
+      "assessments": [
+        {
+          "verdict": "PASS",
+          "valid": false
+        }
+      ],
+      "audits": [
+        "PASS"
+      ],
+      "name": "only_invalid_run",
+      "expected": "INSUFFICIENT"
+    }
+  ],
+  "admission": [
+    {
+      "name": "OPEN_ACTIVE",
+      "trust": "OPEN",
+      "skill": "ACTIVE",
+      "expected": true
+    },
+    {
+      "name": "OPEN_REVOKED",
+      "trust": "OPEN",
+      "skill": "REVOKED",
+      "expected": false
+    },
+    {
+      "name": "BLOCKED_ACTIVE",
+      "trust": "BLOCKED",
+      "skill": "ACTIVE",
+      "expected": false
+    },
+    {
+      "name": "BLOCKED_REVOKED",
+      "trust": "BLOCKED",
+      "skill": "REVOKED",
+      "expected": false
+    }
+  ],
+  "unlock": [
+    {
+      "name": "unlock_0",
+      "expected_revision": 2,
+      "current_revision": 2,
+      "propagation_complete": true,
+      "affected_writes_drained": true,
+      "expected": true
+    },
+    {
+      "name": "unlock_1",
+      "expected_revision": 2,
+      "current_revision": 3,
+      "propagation_complete": true,
+      "affected_writes_drained": true,
+      "expected": false
+    },
+    {
+      "name": "unlock_2",
+      "expected_revision": 2,
+      "current_revision": 2,
+      "propagation_complete": false,
+      "affected_writes_drained": true,
+      "expected": false
+    },
+    {
+      "name": "unlock_3",
+      "expected_revision": 2,
+      "current_revision": 2,
+      "propagation_complete": true,
+      "affected_writes_drained": false,
+      "expected": false
+    }
+  ]
+}

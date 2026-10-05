@@ -1,0 +1,1 @@
+{"name":"ringharness","private":true,"version":"0.1.0","packageManager":"pnpm@10.28.0","scripts":{"typecheck":"pnpm -r typecheck","build":"pnpm -r build","test":"pnpm -r --if-present test"},"devDependencies":{"typescript":"^5.9.0","openapi-typescript":"^7.0.0"}}

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ringharness:event:v1",
+  "$ref": "content-v3.schema.json#/$defs/Event"
+}

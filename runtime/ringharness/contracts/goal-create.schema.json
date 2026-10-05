@@ -1,0 +1,210 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "max_cost_usd": {
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Max Cost Usd",
+          "type": "string"
+        },
+        "max_disk_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Max Disk Bytes",
+          "type": "integer"
+        },
+        "max_gpu_seconds": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{0,5}[1-9])?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Gpu Seconds"
+        },
+        "max_network_calls": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Max Network Calls",
+          "type": "integer"
+        },
+        "max_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Max Tool Calls",
+          "type": "integer"
+        },
+        "wall_clock_seconds": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Wall Clock Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "wall_clock_seconds",
+        "max_tokens",
+        "max_cost_usd",
+        "max_tool_calls",
+        "max_network_calls",
+        "max_disk_bytes",
+        "max_gpu_seconds"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "Criterion": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "verification_profile_id": {
+          "format": "uuid",
+          "title": "Verification Profile Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "required",
+        "verification_profile_id"
+      ],
+      "title": "Criterion",
+      "type": "object"
+    },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "max_activity_retries": {
+          "default": 3,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Max Activity Retries",
+          "type": "integer"
+        },
+        "max_audit_attempts_per_candidate": {
+          "default": 3,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Max Audit Attempts Per Candidate",
+          "type": "integer"
+        },
+        "max_execution_rounds": {
+          "default": 4,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Max Execution Rounds",
+          "type": "integer"
+        },
+        "max_plan_revisions": {
+          "default": 10,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Max Plan Revisions",
+          "type": "integer"
+        }
+      },
+      "title": "RetryPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base_commit": {
+      "maxLength": 10000,
+      "title": "Base Commit",
+      "type": "string"
+    },
+    "budget": {
+      "$ref": "#/$defs/Budget"
+    },
+    "constraints": {
+      "items": {
+        "maxLength": 10000,
+        "type": "string"
+      },
+      "maxItems": 10000,
+      "title": "Constraints",
+      "type": "array"
+    },
+    "model_profile_id": {
+      "format": "uuid",
+      "title": "Model Profile Id",
+      "type": "string"
+    },
+    "objective": {
+      "maxLength": 10000,
+      "minLength": 1,
+      "title": "Objective",
+      "type": "string"
+    },
+    "policy_id": {
+      "format": "uuid",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "retry_policy": {
+      "$ref": "#/$defs/RetryPolicy"
+    },
+    "skill_set_id": {
+      "format": "uuid",
+      "title": "Skill Set Id",
+      "type": "string"
+    },
+    "success_criteria": {
+      "items": {
+        "$ref": "#/$defs/Criterion"
+      },
+      "maxItems": 200,
+      "minItems": 1,
+      "title": "Success Criteria",
+      "type": "array"
+    }
+  },
+  "required": [
+    "project_id",
+    "objective",
+    "success_criteria",
+    "constraints",
+    "budget",
+    "retry_policy",
+    "policy_id",
+    "model_profile_id",
+    "skill_set_id",
+    "base_commit"
+  ],
+  "title": "GoalCreate",
+  "type": "object"
+}

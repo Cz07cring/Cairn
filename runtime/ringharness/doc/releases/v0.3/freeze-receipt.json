@@ -1,0 +1,7 @@
+{
+  "spec_version": "v0.3",
+  "frozen_at": "2026-09-11T03:14:01.075880+00:00",
+  "manifest_sha256": "1a768513973cc5873b5391f20140e2870dd01a4debdb3b148b61f1e404f3dcfb",
+  "snapshot_sha256": "f52bc6fa4e62e34f1b1d1a0441d80e377cbccba00c4fd844ab08937482528c6e",
+  "note": "External integrity receipt; not a digital signature or evidence of application correctness."
+}

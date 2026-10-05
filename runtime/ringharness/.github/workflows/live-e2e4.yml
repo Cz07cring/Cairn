@@ -1,0 +1,138 @@
+############################################################
+# 可选 live：真实模型 × RunActivation diagnose → Goal DONE（§⑥）
+#
+# 与 foundation.yml 刻意独立：无 secrets 时本 job 不创建（不进矩阵、不烧配额）。
+# 注意：判定**不能**写在 job 级 `if` 里直接引用 secrets —— GitHub 在解析期就报
+# `Unrecognized named-value: 'secrets'`，使整个 workflow 失败且不产生任何 job。
+# 故用 `live-credentials` 前置 job 探测后经 `needs.<job>.outputs` 传递（见下）。
+# 配置仓库 secrets 后才成为失败关闭门禁：
+#   RING_LIVE_CHAT_API_KEY   — DeepSeek（或兼容）API key
+#   RING_LIVE_CHAT_MODEL     — 可选，默认 deepseek-flash
+#   RING_LIVE_CHAT_BASE      — 可选，默认 https://api.deepseek.com
+#
+# RING_CI_LIVE_REQUIRED=1：缺 harness / 模型 env 时 pytest.fail，禁止 skip 冒充绿。
+############################################################
+
+name: Live e2e4 (optional)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: live-e2e4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  live-credentials:
+    # 为什么要有这一层：GitHub **不允许**在 job 级 `if` 引用 `secrets` 上下文 ——
+    # 解析期即报 `Unrecognized named-value: 'secrets'`，导致**整个 workflow 失败且不产生任何 job**
+    # （实测 2026-09-13 main 因此变红：run conclusion=failure、jobs 为空、无日志可取）。
+    # 用一个极廉价的 job 探测凭据，真正的 live job 用 `needs` 结果决定是否创建。
+    runs-on: ubuntu-latest
+    outputs:
+      has_key: ${{ steps.probe.outputs.has_key }}
+    steps:
+      - id: probe
+        env:
+          KEY: ${{ secrets.RING_LIVE_CHAT_API_KEY }}
+        run: |
+          if [ -n "${KEY}" ]; then
+            echo "has_key=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=0" >> "$GITHUB_OUTPUT"
+            echo "未配置 RING_LIVE_CHAT_API_KEY → live job 不创建（不失败、不空跑、不烧配额）"
+          fi
+
+  live-e2e4-diagnose:
+    # 无 API key 时整 job 跳过（fork PR / 未配 secrets → 不失败、不空跑）
+    needs: live-credentials
+    if: ${{ needs.live-credentials.outputs.has_key == '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:17@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+        env:
+          POSTGRES_USER: ring
+          POSTGRES_DB: ring_test
+          POSTGRES_PASSWORD: ci-ephemeral-only
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U ring -d ring_test" --health-interval 5s --health-retries 10
+    env:
+      RING_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+      RING_TEST_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+      RING_TEST_S3_ENDPOINT: http://127.0.0.1:9000
+      RING_TEST_S3_ACCESS_KEY: ring-test
+      RING_TEST_S3_SECRET_KEY: ci-ephemeral-s3-only
+      RING_E2E4_LIVE_CHAT: "1"
+      RING_CI_LIVE_REQUIRED: "1"
+      RING_CLOUD_MODE: PREAUTHORIZED
+      # 与本机 soak 同口径：夹具 ModelProfile 须对齐 RING_LOCAL_QWEN_*（DeepSeek）
+      RING_TEST_ALLOW_CLOUD: "1"
+      RING_CHAT_CLOUD_PROVIDER_REF: deepseek:api
+      RING_LOCAL_QWEN_API_KEY: ${{ secrets.RING_LIVE_CHAT_API_KEY }}
+      RING_LOCAL_QWEN_TIMEOUT: "120"
+      RING_HARNESS_PIN: c291e7961a515f6d7af9304e7fd1d257929aef26
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - run: npm install --global pnpm@10.28.0
+      - run: uv sync --frozen --python 3.12
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start isolated object storage
+        run: |
+          docker run -d --name ring-s3 -p 127.0.0.1:9000:9000 \
+            -e MINIO_ROOT_USER=ring-test \
+            -e MINIO_ROOT_PASSWORD=ci-ephemeral-s3-only \
+            quay.io/minio/minio@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e \
+            server /data
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/ready; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - run: uv run alembic upgrade head
+
+      - name: Pull and build pinned DeepSeek Harness
+        run: |
+          bash scripts/pull_harness_pin.sh "$RING_HARNESS_PIN" --build
+          echo "RING_HARNESS_CHECKOUT=$PWD/.runtime/harness-pins/$RING_HARNESS_PIN" >> "$GITHUB_ENV"
+
+      - name: Live diagnose → Goal DONE (fail-closed)
+        env:
+          # 可选覆盖；未设 secrets 时用 DeepSeek 默认
+          RING_LOCAL_QWEN_BASE: ${{ secrets.RING_LIVE_CHAT_BASE }}
+          RING_LOCAL_QWEN_MODEL: ${{ secrets.RING_LIVE_CHAT_MODEL }}
+        run: |
+          set -euo pipefail
+          export RING_LOCAL_QWEN_BASE="${RING_LOCAL_QWEN_BASE:-https://api.deepseek.com}"
+          export RING_LOCAL_QWEN_MODEL="${RING_LOCAL_QWEN_MODEL:-deepseek-flash}"
+          echo "checkout=$RING_HARNESS_CHECKOUT model=$RING_LOCAL_QWEN_MODEL base=$RING_LOCAL_QWEN_BASE"
+          uv run python scripts/probe_local_qwen.py
+          # 模型/租约瞬时失败时允许一次重试（CI 临时库仍可能撞 race；≠ 吞错）
+          set +e
+          uv run pytest -q \
+            tests/e2e/test_e2e4_official_loop_to_goal_done.py::test_e2e4_run_activation_live_diagnose_seal_then_goal_done \
+            --tb=short
+          code=$?
+          if [ "$code" -ne 0 ]; then
+            echo "live diagnose 首跑失败（exit=$code），5s 后重试一次…"
+            sleep 5
+            uv run pytest -q \
+              tests/e2e/test_e2e4_official_loop_to_goal_done.py::test_e2e4_run_activation_live_diagnose_seal_then_goal_done \
+              --tb=short
+            code=$?
+          fi
+          exit "$code"

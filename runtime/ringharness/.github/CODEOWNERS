@@ -1,0 +1,13 @@
+# 默认审查人（创建 GitHub 仓库后按组织/团队调整）
+* @Cz07cring
+
+# 契约与生成客户端：防止无审漂移
+/contracts/ @Cz07cring
+/packages/api-client/ @Cz07cring
+/doc/contracts/ @Cz07cring
+
+# 编排与 Runner 边界
+/packages/orchestration/ @Cz07cring
+/apps/workflow-worker/ @Cz07cring
+/apps/runner/ @Cz07cring
+/deploy/temporal/ @Cz07cring

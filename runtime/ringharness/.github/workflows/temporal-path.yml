@@ -1,0 +1,163 @@
+############################################################
+# 编排/Temporal 路径的独立 CI 覆盖
+#
+# 为什么需要本文件（真实缺口，2026-09-12 实测）
+# ------------------------------------------------------------
+# `foundation.yml` 只起了 Postgres + MinIO，**没有 Temporal 服务**。
+# 而 `tests/temporal/**` 里凡依赖 Temporal 的用例都以「服务不可达」为由 skip：
+#
+#   tests/temporal/test_tm_compose_*.py:  pytest.skip("本机 Temporal（RING_TEMPORAL_TARGET 或 127.0.0.1:7233）不可连")
+#   tests/temporal/test_temporal_worker_recovery.py: pytest.skip(f"Temporal start_local 不可用: {exc}")
+#
+# 后果：**`packages/orchestration/**` 这条业务主干路径在 CI 中零覆盖**，
+# 而 AGENTS 规则 16 又规定「门禁以 CI 为准」——两者叠加意味着编排路径实际上
+# 既无言据也无门禁。本机虽可跑（resident Temporal），但本机全量受共享库污染、
+# 结果不可信（同为规则 16 所记）。
+#
+# 本工作流用**仓库已钉扎 digest** 的 `deploy/temporal/docker-compose.yml`
+# （与 VERSIONS.md 一致，禁止 latest）把 Temporal 拉起来，再跑 tests/temporal/**。
+#
+# 与主门禁的关系
+# ------------------------------------------------------------
+# **刻意独立于 `foundation.yml`**：不改动既有门禁，避免在尚未稳定时把主门禁打红。
+# 是否将其设为「必需检查」由分支保护决定（团队裁定后再提升）。
+# 若本工作流暴露真实失败，那是**发现**而非回归 —— 请按 doc/research
+# §9 的分类（ORCHESTRATION）登记处理，不要靠 skip 掩盖。
+############################################################
+
+name: Orchestration (Temporal) checks
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: temporal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  temporal-path:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+        env:
+          POSTGRES_USER: ring
+          POSTGRES_DB: ring_test
+          POSTGRES_PASSWORD: ci-ephemeral-only
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U ring -d ring_test" --health-interval 5s --health-retries 10
+    env:
+      RING_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+      RING_TEST_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+      RING_TEST_S3_ENDPOINT: http://127.0.0.1:9000
+      RING_TEST_S3_ACCESS_KEY: ring-test
+      RING_TEST_S3_SECRET_KEY: ci-ephemeral-s3-only
+      # 关键：本机用 127.0.0.1:7233；CI 由下方 compose 提供同一地址
+      RING_TEMPORAL_TARGET: 127.0.0.1:7233
+      # 上游 Harness 钉扎（与 doc/09 及 build_harness_agent_loop.sh 的 EXPECTED_PIN 一致）
+      RING_HARNESS_PIN: c291e7961a515f6d7af9304e7fd1d257929aef26
+      RING_HARNESS_PINS_ROOT: ${{ github.workspace }}/.runtime/harness-pins
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm install --global pnpm@10.28.0
+      - run: uv sync --frozen --python 3.12
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start isolated object storage
+        run: |
+          docker run -d --name ring-s3 -p 127.0.0.1:9000:9000 -e MINIO_ROOT_USER=ring-test -e MINIO_ROOT_PASSWORD=ci-ephemeral-s3-only quay.io/minio/minio@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e server /data
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/ready; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Start Temporal (仓库钉扎 compose 模板)
+        run: |
+          cd deploy/temporal
+          docker compose up -d
+          cd "$GITHUB_WORKSPACE"
+
+      - name: 等 Temporal 就绪（宿主侧 SDK 探测，与测试同口径）
+        run: |
+          # 注意：不要在容器内探测 127.0.0.1:7233（容器内视角 ≠ 宿主映射端口）。
+          # auto-setup 首次建 schema 需要时间，故重试 60 次 × 2s。
+          PROBE='import asyncio,sys
+          from temporalio.client import Client
+          async def main():
+              await Client.connect("127.0.0.1:7233")
+          asyncio.run(main())'
+          for i in $(seq 1 60); do
+            if uv run python -c "$PROBE" >/dev/null 2>&1; then
+              echo "Temporal 就绪（第 ${i} 次探测）"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Temporal 未在 120s 内就绪，输出容器状态与日志："
+          docker compose -f deploy/temporal/docker-compose.yml ps
+          docker compose -f deploy/temporal/docker-compose.yml logs --tail 80 temporal
+          exit 1
+
+      - name: Show pinned images (审计用)
+        run: docker compose -f deploy/temporal/docker-compose.yml ps --format '{{.Name}} {{.Image}} {{.Status}}'
+
+      - run: uv run alembic upgrade head
+
+      - name: 编排路径测试（可见 skip 明细，避免「静默跳过」被误读为通过）
+        run: uv run pytest tests/temporal/ -q -rs
+
+      # ---------------------------------------------------------------
+      # 真实业务路径（E2E）覆盖
+      #
+      # 为什么必须补这一段：`tests/e2e/**` 里的业务全链用例**需要上游 Harness checkout**，
+      # 未设置 RING_HARNESS_CHECKOUT 时它们按自身守卫**静默 skip** —— 于是
+      # 「目标 → 计划 → 执行 → 封存 → 审计 → 集成 → 最终屏障 → Goal DONE」
+      # 这条**最重要的业务路径在 CI 中零覆盖**（foundation.yml 无 Temporal，故更不可能覆盖）。
+      #
+      # 上游 Harness 为**公开仓库的钉扎归档**（已实测 HTTP 200 可取），故 CI 可自行拉取构建。
+      # 这一段跑的是 FSM/scripted 变体（不需要模型）：live 变体另需 RING_E2E4_LIVE_CHAT
+      # 与真实模型凭据，仍按失败关闭 skip —— **不假装**它在 CI 中跑过。
+      # ---------------------------------------------------------------
+      - name: 拉取并构建钉扎 Harness（业务路径前置）
+        run: |
+          set -euo pipefail
+          bash scripts/pull_harness_pin.sh "$RING_HARNESS_PIN"
+          export RING_HARNESS_CHECKOUT="$RING_HARNESS_PINS_ROOT/$RING_HARNESS_PIN"
+          bash scripts/build_harness_agent_loop.sh
+          test -f "$RING_HARNESS_CHECKOUT/packages/core/agent-loop/lib/index.js"
+          echo "Harness 就绪: $RING_HARNESS_CHECKOUT"
+
+      # 无模型 secrets 时的默认门：FSM diagnose → Goal DONE（≠ 真实模型 live）。
+      # 真实模型 live 仍走 live-e2e4.yml（需 RING_LIVE_CHAT_API_KEY）。
+      - name: 默认 e2e4 FSM diagnose 门（无 secrets 也强制）
+        env:
+          RING_HARNESS_CHECKOUT: ${{ github.workspace }}/.runtime/harness-pins/c291e7961a515f6d7af9304e7fd1d257929aef26
+        run: |
+          set -euo pipefail
+          test -n "${RING_HARNESS_CHECKOUT}"
+          test -f "$RING_HARNESS_CHECKOUT/packages/core/agent-loop/lib/index.js"
+          # 禁止静默 skip：缺 Harness 应失败（本步已保证 checkout）
+          uv run pytest -q \
+            tests/e2e/test_e2e4_official_loop_to_goal_done.py::test_e2e4_run_activation_diagnose_seal_then_goal_done \
+            --tb=short
+
+      - name: 真实业务路径测试（E2E；可见 skip 明细）
+        env:
+          RING_HARNESS_CHECKOUT: ${{ github.workspace }}/.runtime/harness-pins/c291e7961a515f6d7af9304e7fd1d257929aef26
+        run: uv run pytest tests/e2e/ -q -rs
+
+      - name: Temporal 日志（失败时取证）
+        if: failure()
+        run: docker compose -f deploy/temporal/docker-compose.yml logs --tail 100 temporal

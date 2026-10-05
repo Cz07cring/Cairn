@@ -1,0 +1,6 @@
+{
+  "sku": "SKU-001",
+  "quantity": 2,
+  "unit_price": "19.90",
+  "idempotency_key": "checkout-20260912-001"
+}

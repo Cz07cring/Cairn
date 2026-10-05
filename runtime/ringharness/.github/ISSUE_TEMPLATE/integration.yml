@@ -1,0 +1,56 @@
+name: 第三方集成
+description: 与 Harness、Temporal、Verifier、模型服务、对象仓等联合开发
+title: "[integration] "
+labels: ["integration", "third-party"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: 对接组件类型
+      options:
+        - Harness / Cordis（固定 SHA）
+        - Temporal Server / Worker
+        - Verifier / VerificationProfile
+        - 模型服务（本地 Qwen / 其他）
+        - 对象仓 / Git 仓库适配
+        - Broker 工具 / 沙箱
+        - 其他（请在正文说明）
+    validations:
+      required: true
+  - type: input
+    id: upstream
+    attributes:
+      label: 上游标识
+      description: 仓库 URL、镜像名、或产品名 + 精确版本 / commit SHA / digest（禁止 latest）
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: 边界与数据流
+      description: |
+        谁持有业务 DB？谁可写 Goal/Task？effect / ModelInvocation 如何经 Kernel？
+        Temporal 不可用时如何待投递（禁止 silent LEGACY fallback）？
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: 契约需求
+      description: 需要新增/变更的 OpenAPI、内部 orchestration 契约、Activity 名、task queue？
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收口径
+      description: 对应 T/AT/E/TM 条目或拟新增测试；何谓「完成」的证据
+    validations:
+      required: true
+  - type: checkboxes
+    id: affirm
+    attributes:
+      label: 确认
+      options:
+        - label: 理解 DONE 仅由 Kernel + VerificationProfile + 屏障判定
+        - label: 不要求在 Runner/第三方进程内直连业务库写 Goal/Task
+        - label: 版本钉扎使用精确 pin，不提交 latest
+      required: true

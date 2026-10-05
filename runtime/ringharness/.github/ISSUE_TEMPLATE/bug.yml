@@ -1,0 +1,41 @@
+name: 缺陷报告
+description: 功能不正确、回归、测试失败
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请勿在此粘贴密钥、JWT、数据库 URL 或可直接利用的 exploit。安全问题见 SECURITY.md。
+  - type: textarea
+    id: what
+    attributes:
+      label: 现象
+      description: 实际发生了什么？
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 命令、环境变量名（不要写秘密值）、相关 Goal/Activity id（可打码）
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / commit
+      placeholder: main @ abc1234 或 tag
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自检
+      options:
+        - label: 已对照 AGENTS.md / doc 不变量
+        - label: 本地相关测试已跑或说明无法跑的原因

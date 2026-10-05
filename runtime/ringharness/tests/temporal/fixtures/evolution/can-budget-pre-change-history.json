@@ -1,0 +1,1421 @@
+{
+  "events": [
+    {
+      "eventId": "1",
+      "eventTime": "2026-09-25T08:51:53.242950711Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_STARTED",
+      "taskId": "2101958",
+      "workflowExecutionStartedEventAttributes": {
+        "workflowType": {
+          "name": "GoalWorkflow"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3RpdmF0aW9uX2J1ZGdldF9zZWNvbmRzIjo5MDAsImNvbW1hbmRfaWQiOiI0MjEwYTljMC1hYjVkLTQzYzUtYmM2MC04NTc5ZTdlOTZiMmUiLCJnb2FsX2lkIjoiMjU3ZWMwMWQtZDRmNy00YTMzLTk2YTItNDA2MDRkZDAxYjdmIiwib2JzZXJ2ZV9tYXhfdGlja3MiOjYwLCJvd25lcl9lcG9jaCI6IjMiLCJydW5uZXJfYXV0aG9yaXR5X3F1ZXVlcyI6dHJ1ZX0="
+            }
+          ]
+        },
+        "workflowTaskTimeout": "10s",
+        "originalExecutionRunId": "01a0d7c3-911a-7e7b-bbbe-3a4c0d62eee4",
+        "identity": "73388@ringdeMacStudio",
+        "firstExecutionRunId": "01a0d7c3-911a-7e7b-bbbe-3a4c0d62eee4",
+        "attempt": 1,
+        "firstWorkflowTaskBackoff": "0s",
+        "workflowId": "goal-257ec01d-d4f7-4a33-96a2-40604dd01b7f-replan-4210a9c0-ab5d-43c5-bc60-8579e7e96b2e",
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "2",
+      "eventTime": "2026-09-25T08:51:53.243043627Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2101959",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "3",
+      "eventTime": "2026-09-25T08:51:53.251738211Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2101964",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "2",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "36e6d0df-9a6c-4734-923e-371262f663c0",
+        "historySizeBytes": "552",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "4",
+      "eventTime": "2026-09-25T08:51:53.742592294Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2101968",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "2",
+        "startedEventId": "3",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {
+          "coreUsedFlags": [
+            1,
+            2,
+            3
+          ],
+          "sdkName": "temporal-python",
+          "sdkVersion": "1.32.0"
+        },
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "5",
+      "eventTime": "2026-09-25T08:51:53.742659419Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101969",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImFjdGl2aXR5LXJldHJ5LWJvdW5kZWQtdjEiLCJkZXByZWNhdGVkIjpmYWxzZX0="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "4"
+      }
+    },
+    {
+      "eventId": "6",
+      "eventTime": "2026-09-25T08:51:53.744740086Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101970",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "4",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "7",
+      "eventTime": "2026-09-25T08:51:53.744800503Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101971",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImFkdmFuY2Utb24tcmVhZHktdjEiLCJkZXByZWNhdGVkIjpmYWxzZX0="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "4"
+      }
+    },
+    {
+      "eventId": "8",
+      "eventTime": "2026-09-25T08:51:53.745920628Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101972",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "4",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSJd"
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "9",
+      "eventTime": "2026-09-25T08:51:53.745938836Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101973",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImFkbWl0LWFsbC1raW5kcy12MSIsImRlcHJlY2F0ZWQiOmZhbHNlfQ=="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "4"
+      }
+    },
+    {
+      "eventId": "10",
+      "eventTime": "2026-09-25T08:51:53.747300794Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101974",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "4",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSJd"
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "11",
+      "eventTime": "2026-09-25T08:51:53.747326253Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101975",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6InJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "4"
+      }
+    },
+    {
+      "eventId": "12",
+      "eventTime": "2026-09-25T08:51:53.748738919Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101976",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "4",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "13",
+      "eventTime": "2026-09-25T08:51:53.748796211Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2101977",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "1",
+        "activityType": {
+          "name": "ensure_goal_delivery"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjQyMTBhOWMwLWFiNWQtNDNjNS1iYzYwLTg1NzllN2U5NmIyZSI="
+            },
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjI1N2VjMDFkLWQ0ZjctNGEzMy05NmEyLTQwNjA0ZGQwMWI3ZiI="
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "60s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "4",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "10s",
+          "maximumAttempts": 3
+        },
+        "useWorkflowBuildId": true,
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "14",
+      "eventTime": "2026-09-25T08:51:53.755047961Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2101983",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "13",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "66b80fb2-abab-4c00-ba69-6046c8269c33",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "15",
+      "eventTime": "2026-09-25T08:51:53.777562336Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2101984",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJidWRnZXRfZXhoYXVzdGVkIjpmYWxzZSwiYnVkZ2V0X3JlbWFpbmluZ193YWxsX3NlY29uZHMiOjI2NzEsImJ1ZGdldF9zdGF0dXMiOiJPSyIsImNvbW1hbmRfaWQiOiI0MjEwYTljMC1hYjVkLTQzYzUtYmM2MC04NTc5ZTdlOTZiMmUiLCJkZWxpdmVyeV9zdGF0dXMiOiJBQ0tOT1dMRURHRUQiLCJydW5faWQiOiIwMWEwZDdjMy05MTFhLTdlN2ItYmJiZS0zYTRjMGQ2MmVlZTQiLCJ3b3JrZmxvd19pZCI6ImdvYWwtMjU3ZWMwMWQtZDRmNy00YTMzLTk2YTItNDA2MDRkZDAxYjdmLXJlcGxhbi00MjEwYTljMC1hYjVkLTQzYzUtYmM2MC04NTc5ZTdlOTZiMmUifQ=="
+            }
+          ]
+        },
+        "scheduledEventId": "13",
+        "startedEventId": "14",
+        "identity": "73388@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "16",
+      "eventTime": "2026-09-25T08:51:53.777567128Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2101985",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "17",
+      "eventTime": "2026-09-25T08:51:53.780337336Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2101989",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "16",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "10bd0ec5-60ff-4c5a-ab52-38e5f2ef3f95",
+        "historySizeBytes": "2886",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "18",
+      "eventTime": "2026-09-25T08:51:53.788053586Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2101993",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "16",
+        "startedEventId": "17",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "19",
+      "eventTime": "2026-09-25T08:51:53.788080336Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101994",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImFiYW5kb24tcGVyc2lzdGVuY2UtdjEiLCJkZXByZWNhdGVkIjpmYWxzZX0="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "18"
+      }
+    },
+    {
+      "eventId": "20",
+      "eventTime": "2026-09-25T08:51:53.788861211Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101995",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "18",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZpdHktcmV0cnktYm91bmRlZC12MSIsImFkbWl0LWFsbC1raW5kcy12MSIsImFkdmFuY2Utb24tcmVhZHktdjEiLCJydW5uZXItYXV0aG9yaXR5LXF1ZXVlcy12MSJd"
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "21",
+      "eventTime": "2026-09-25T08:51:53.788875336Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101996",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6InJlY292ZXJ5LXNhZmV0eS1nYXRlLXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "18"
+      }
+    },
+    {
+      "eventId": "22",
+      "eventTime": "2026-09-25T08:51:53.790620961Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101997",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "18",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZpdHktcmV0cnktYm91bmRlZC12MSIsImFkbWl0LWFsbC1raW5kcy12MSIsImFkdmFuY2Utb24tcmVhZHktdjEiLCJyZWNvdmVyeS1zYWZldHktZ2F0ZS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "23",
+      "eventTime": "2026-09-25T08:51:53.790637753Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2101998",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6InJlY292ZXJ5LWVuYWJsZWQtc3dpdGNoLXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "18"
+      }
+    },
+    {
+      "eventId": "24",
+      "eventTime": "2026-09-25T08:51:53.791439628Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2101999",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "18",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZpdHktcmV0cnktYm91bmRlZC12MSIsImFkbWl0LWFsbC1raW5kcy12MSIsImFkdmFuY2Utb24tcmVhZHktdjEiLCJyZWNvdmVyeS1lbmFibGVkLXN3aXRjaC12MSIsInJlY292ZXJ5LXNhZmV0eS1nYXRlLXYxIiwicnVubmVyLWF1dGhvcml0eS1xdWV1ZXMtdjEiXQ=="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "25",
+      "eventTime": "2026-09-25T08:51:53.791476461Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2102000",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "2",
+        "activityType": {
+          "name": "list_runtime_actions"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjI1N2VjMDFkLWQ0ZjctNGEzMy05NmEyLTQwNjA0ZGQwMWI3ZiI="
+            },
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjMi"
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "60s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "18",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "10s",
+          "maximumAttempts": 3
+        },
+        "useWorkflowBuildId": true,
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "26",
+      "eventTime": "2026-09-25T08:51:53.797856669Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2102006",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "25",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "a5a8b150-e238-438c-9080-2e2e2df43386",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "27",
+      "eventTime": "2026-09-25T08:51:53.819219711Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2102007",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3Rpb25zIjpbeyJhY3Rpb25faWQiOiI2MzA1Y2ZlNC05MmRkLTRkMDktYmYzZi1iZmJjNGQ2NmVlMWUiLCJhY3Rpdml0eV9pZCI6IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSIsImdvYWxfaWQiOiIyNTdlYzAxZC1kNGY3LTRhMzMtOTZhMi00MDYwNGRkMDFiN2YiLCJraW5kIjoiUExBTiIsIm93bmVyX2Vwb2NoIjoiMyIsInByb2plY3RfaWQiOiIyY2NlYWY1Ni1kNWVkLTQ5N2YtOGZjMC00MjA3YjQ5NDMyYTcifV0sIndhaXRfaGludCI6bnVsbH0="
+            }
+          ]
+        },
+        "scheduledEventId": "25",
+        "startedEventId": "26",
+        "identity": "73388@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "28",
+      "eventTime": "2026-09-25T08:51:53.819225586Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2102008",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "29",
+      "eventTime": "2026-09-25T08:51:53.822965961Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2102012",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "28",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "6c3cc391-5e6e-4aac-bc92-da20b39a639a",
+        "historySizeBytes": "5078",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "30",
+      "eventTime": "2026-09-25T08:51:53.829727044Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2102016",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "28",
+        "startedEventId": "29",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "31",
+      "eventTime": "2026-09-25T08:51:53.829748378Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102017",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImIwODYtdGVtcG9yYWwtcmVjb3ZlcnktdjEiLCJkZXByZWNhdGVkIjpmYWxzZX0="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "30"
+      }
+    },
+    {
+      "eventId": "32",
+      "eventTime": "2026-09-25T08:51:53.830345961Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102018",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "30",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZpdHktcmV0cnktYm91bmRlZC12MSIsImFkbWl0LWFsbC1raW5kcy12MSIsImFkdmFuY2Utb24tcmVhZHktdjEiLCJiMDg2LXRlbXBvcmFsLXJlY292ZXJ5LXYxIiwicmVjb3ZlcnktZW5hYmxlZC1zd2l0Y2gtdjEiLCJyZWNvdmVyeS1zYWZldHktZ2F0ZS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "33",
+      "eventTime": "2026-09-25T08:51:53.830359919Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102019",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6Im0zLWV4ZWN1dGUtb3JjaGVzdHJhdGlvbi12MSIsImRlcHJlY2F0ZWQiOmZhbHNlfQ=="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "30"
+      }
+    },
+    {
+      "eventId": "34",
+      "eventTime": "2026-09-25T08:51:53.830663503Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102020",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "30",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZpdHktcmV0cnktYm91bmRlZC12MSIsImFkbWl0LWFsbC1raW5kcy12MSIsImFkdmFuY2Utb24tcmVhZHktdjEiLCJiMDg2LXRlbXBvcmFsLXJlY292ZXJ5LXYxIiwibTMtZXhlY3V0ZS1vcmNoZXN0cmF0aW9uLXYxIiwicmVjb3ZlcnktZW5hYmxlZC1zd2l0Y2gtdjEiLCJyZWNvdmVyeS1zYWZldHktZ2F0ZS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "35",
+      "eventTime": "2026-09-25T08:51:53.830668044Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102021",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImFjdGl2YXRpb24tYnVkZ2V0LXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "30"
+      }
+    },
+    {
+      "eventId": "36",
+      "eventTime": "2026-09-25T08:51:53.830953211Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102022",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "30",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZhdGlvbi1idWRnZXQtdjEiLCJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSIsImIwODYtdGVtcG9yYWwtcmVjb3ZlcnktdjEiLCJtMy1leGVjdXRlLW9yY2hlc3RyYXRpb24tdjEiLCJyZWNvdmVyeS1lbmFibGVkLXN3aXRjaC12MSIsInJlY292ZXJ5LXNhZmV0eS1nYXRlLXYxIiwicnVubmVyLWF1dGhvcml0eS1xdWV1ZXMtdjEiXQ=="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "37",
+      "eventTime": "2026-09-25T08:51:53.830960419Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102023",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImdvYWwtcmV2aWV3LXBlcmlvZGljLXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "30"
+      }
+    },
+    {
+      "eventId": "38",
+      "eventTime": "2026-09-25T08:51:53.831324628Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102024",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "30",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZhdGlvbi1idWRnZXQtdjEiLCJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSIsImIwODYtdGVtcG9yYWwtcmVjb3ZlcnktdjEiLCJnb2FsLXJldmlldy1wZXJpb2RpYy12MSIsIm0zLWV4ZWN1dGUtb3JjaGVzdHJhdGlvbi12MSIsInJlY292ZXJ5LWVuYWJsZWQtc3dpdGNoLXYxIiwicmVjb3Zlcnktc2FmZXR5LWdhdGUtdjEiLCJydW5uZXItYXV0aG9yaXR5LXF1ZXVlcy12MSJd"
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "39",
+      "eventTime": "2026-09-25T08:51:53.831329669Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102025",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6ImdvYWwtcmV2aWV3LXNlcS1iYXNlLXYxIiwiZGVwcmVjYXRlZCI6ZmFsc2V9"
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "30"
+      }
+    },
+    {
+      "eventId": "40",
+      "eventTime": "2026-09-25T08:51:53.831671919Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102026",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "30",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZhdGlvbi1idWRnZXQtdjEiLCJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSIsImIwODYtdGVtcG9yYWwtcmVjb3ZlcnktdjEiLCJnb2FsLXJldmlldy1wZXJpb2RpYy12MSIsImdvYWwtcmV2aWV3LXNlcS1iYXNlLXYxIiwibTMtZXhlY3V0ZS1vcmNoZXN0cmF0aW9uLXYxIiwicmVjb3ZlcnktZW5hYmxlZC1zd2l0Y2gtdjEiLCJyZWNvdmVyeS1zYWZldHktZ2F0ZS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "41",
+      "eventTime": "2026-09-25T08:51:53.831694711Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2102027",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "3",
+        "activityType": {
+          "name": "admit_plan_action"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSI="
+            },
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "ImdvYWwtd2YtYWRtaXQ6NjMwNWNmZTQtOTJkZC00ZDA5LWJmM2YtYmZiYzRkNjZlZTFlIg=="
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "60s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "30",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "10s",
+          "maximumAttempts": 3
+        },
+        "useWorkflowBuildId": true,
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "42",
+      "eventTime": "2026-09-25T08:51:53.834959044Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2102033",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "41",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "91709892-7bec-4b36-b6ae-ad3691ad69d7",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "43",
+      "eventTime": "2026-09-25T08:51:53.877922544Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2102034",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3Rpdml0eV9pZCI6IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSIsImF0dGVtcHRfaWQiOiIwYzc3NzlhZS04N2E0LTQ1MDQtYjlmMy1jNzBhZTU4Y2IwMWYiLCJmZW5jaW5nX2Vwb2NoIjoiMSJ9"
+            }
+          ]
+        },
+        "scheduledEventId": "41",
+        "startedEventId": "42",
+        "identity": "73388@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "44",
+      "eventTime": "2026-09-25T08:51:53.877927253Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2102035",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "45",
+      "eventTime": "2026-09-25T08:51:53.881530378Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2102039",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "44",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "17de7597-fdbd-4a94-90e7-8164ba449a95",
+        "historySizeBytes": "8528",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "46",
+      "eventTime": "2026-09-25T08:51:53.890350878Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2102043",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "44",
+        "startedEventId": "45",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "47",
+      "eventTime": "2026-09-25T08:51:53.890386294Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2102044",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "4",
+        "activityType": {
+          "name": "RunActivation"
+        },
+        "taskQueue": {
+          "name": "ring-runner-manager",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3Rpdml0eV9pZCI6IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSIsImF0dGVtcHRfaWQiOiIwYzc3NzlhZS04N2E0LTQ1MDQtYjlmMy1jNzBhZTU4Y2IwMWYiLCJmZW5jaW5nX2Vwb2NoIjoiMSIsImdvYWxfaWQiOiIyNTdlYzAxZC1kNGY3LTRhMzMtOTZhMi00MDYwNGRkMDFiN2YiLCJraW5kIjoiUExBTiIsIm93bmVyX2Vwb2NoIjoiMyJ9"
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "900s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "46",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "100s",
+          "maximumAttempts": 1
+        },
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "48",
+      "eventTime": "2026-09-25T08:51:53.893359669Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2102049",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "47",
+        "identity": "73475@ringdeMacStudio",
+        "requestId": "d6c250ef-9cde-43b2-9170-49d28eb0fb52",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "@temporalio/worker@1.23.0"
+        }
+      }
+    },
+    {
+      "eventId": "49",
+      "eventTime": "2026-09-25T08:52:02.147917215Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2102050",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJzdGF0dXMiOiJBQ1RJVkFUSU9OX1NVQk1JVFRFRCIsInBlbmRpbmdfaGFybmVzcyI6ZmFsc2UsImtpbmQiOiJQTEFOIiwiYWN0aXZpdHlfaWQiOiI2MzA1Y2ZlNC05MmRkLTRkMDktYmYzZi1iZmJjNGQ2NmVlMWUiLCJhdHRlbXB0X2lkIjoiMGM3Nzc5YWUtODdhNC00NTA0LWI5ZjMtYzcwYWU1OGNiMDFmIiwiZmVuY2luZ19lcG9jaCI6IjEifQ=="
+            }
+          ]
+        },
+        "scheduledEventId": "47",
+        "startedEventId": "48",
+        "identity": "73475@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "50",
+      "eventTime": "2026-09-25T08:52:02.147929257Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2102051",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "51",
+      "eventTime": "2026-09-25T08:52:02.156401798Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2102055",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "50",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "c82f1869-d05a-4fe7-b1f2-f0bf33f36eb8",
+        "historySizeBytes": "9584",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "52",
+      "eventTime": "2026-09-25T08:52:02.169094382Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2102059",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "50",
+        "startedEventId": "51",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "53",
+      "eventTime": "2026-09-25T08:52:02.169138423Z",
+      "eventType": "EVENT_TYPE_MARKER_RECORDED",
+      "taskId": "2102060",
+      "markerRecordedEventAttributes": {
+        "markerName": "core_patch",
+        "details": {
+          "patch-data": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "eyJpZCI6Im9ic2VydmUtYmFja29mZi12MSIsImRlcHJlY2F0ZWQiOmZhbHNlfQ=="
+              }
+            ]
+          }
+        },
+        "workflowTaskCompletedEventId": "52"
+      }
+    },
+    {
+      "eventId": "54",
+      "eventTime": "2026-09-25T08:52:02.170054882Z",
+      "eventType": "EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES",
+      "taskId": "2102061",
+      "upsertWorkflowSearchAttributesEventAttributes": {
+        "workflowTaskCompletedEventId": "52",
+        "searchAttributes": {
+          "indexedFields": {
+            "TemporalChangeVersion": {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg==",
+                "type": "S2V5d29yZExpc3Q="
+              },
+              "data": "WyJhYmFuZG9uLXBlcnNpc3RlbmNlLXYxIiwiYWN0aXZhdGlvbi1idWRnZXQtdjEiLCJhY3Rpdml0eS1yZXRyeS1ib3VuZGVkLXYxIiwiYWRtaXQtYWxsLWtpbmRzLXYxIiwiYWR2YW5jZS1vbi1yZWFkeS12MSIsImIwODYtdGVtcG9yYWwtcmVjb3ZlcnktdjEiLCJnb2FsLXJldmlldy1wZXJpb2RpYy12MSIsImdvYWwtcmV2aWV3LXNlcS1iYXNlLXYxIiwibTMtZXhlY3V0ZS1vcmNoZXN0cmF0aW9uLXYxIiwib2JzZXJ2ZS1iYWNrb2ZmLXYxIiwicmVjb3ZlcnktZW5hYmxlZC1zd2l0Y2gtdjEiLCJyZWNvdmVyeS1zYWZldHktZ2F0ZS12MSIsInJ1bm5lci1hdXRob3JpdHktcXVldWVzLXYxIl0="
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "55",
+      "eventTime": "2026-09-25T08:52:02.170104382Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2102062",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "5",
+        "activityType": {
+          "name": "observe_activity_status"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSI="
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "30s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "52",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "10s",
+          "maximumAttempts": 1
+        },
+        "useWorkflowBuildId": true,
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "56",
+      "eventTime": "2026-09-25T08:52:02.174588715Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2102068",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "55",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "4c594527-af9c-43a1-af34-d458da42137a",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "57",
+      "eventTime": "2026-09-25T08:52:02.203859090Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2102069",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3Rpdml0eV9pZCI6IjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSIsImtpbmQiOiJQTEFOIiwic3RhdHVzIjoiU1VDQ0VFREVEIn0="
+            }
+          ]
+        },
+        "scheduledEventId": "55",
+        "startedEventId": "56",
+        "identity": "73388@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "58",
+      "eventTime": "2026-09-25T08:52:02.203868632Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2102070",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "59",
+      "eventTime": "2026-09-25T08:52:02.207698257Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2102074",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "58",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "22cb0257-b9a5-4b6e-9e84-f5937f0a1902",
+        "historySizeBytes": "10927",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "60",
+      "eventTime": "2026-09-25T08:52:02.218886548Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2102078",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "58",
+        "startedEventId": "59",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "61",
+      "eventTime": "2026-09-25T08:52:02.218922923Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_SCHEDULED",
+      "taskId": "2102079",
+      "activityTaskScheduledEventAttributes": {
+        "activityId": "6",
+        "activityType": {
+          "name": "list_runtime_actions"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "header": {},
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjI1N2VjMDFkLWQ0ZjctNGEzMy05NmEyLTQwNjA0ZGQwMWI3ZiI="
+            },
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "IjMi"
+            }
+          ]
+        },
+        "scheduleToCloseTimeout": "0s",
+        "scheduleToStartTimeout": "0s",
+        "startToCloseTimeout": "60s",
+        "heartbeatTimeout": "0s",
+        "workflowTaskCompletedEventId": "60",
+        "retryPolicy": {
+          "initialInterval": "1s",
+          "backoffCoefficient": 2,
+          "maximumInterval": "10s",
+          "maximumAttempts": 3
+        },
+        "useWorkflowBuildId": true,
+        "priority": {}
+      }
+    },
+    {
+      "eventId": "62",
+      "eventTime": "2026-09-25T08:52:02.221751090Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_STARTED",
+      "taskId": "2102084",
+      "activityTaskStartedEventAttributes": {
+        "scheduledEventId": "61",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "df4579a9-4aed-4f88-8c4b-13e94d705d1f",
+        "attempt": 1,
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "63",
+      "eventTime": "2026-09-25T08:52:02.262737673Z",
+      "eventType": "EVENT_TYPE_ACTIVITY_TASK_COMPLETED",
+      "taskId": "2102085",
+      "activityTaskCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhY3Rpb25zIjpbeyJhY3Rpb25faWQiOiI2NWZjNmRmMC02NmIzLTQ2YjYtYjI0ZS03YWI3Nzk5MjhkZmIiLCJhY3Rpdml0eV9pZCI6IjY1ZmM2ZGYwLTY2YjMtNDZiNi1iMjRlLTdhYjc3OTkyOGRmYiIsImdvYWxfaWQiOiIyNTdlYzAxZC1kNGY3LTRhMzMtOTZhMi00MDYwNGRkMDFiN2YiLCJraW5kIjoiRVhFQ1VURSIsIm93bmVyX2Vwb2NoIjoiMyIsInByb2plY3RfaWQiOiIyY2NlYWY1Ni1kNWVkLTQ5N2YtOGZjMC00MjA3YjQ5NDMyYTcifV0sIndhaXRfaGludCI6bnVsbH0="
+            }
+          ]
+        },
+        "scheduledEventId": "61",
+        "startedEventId": "62",
+        "identity": "73388@ringdeMacStudio"
+      }
+    },
+    {
+      "eventId": "64",
+      "eventTime": "2026-09-25T08:52:02.262742965Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "2102086",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "73388@ringdeMacStudio-30b61e9b1a134c7f8e0a96ebed92ec25",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "ring-control"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "65",
+      "eventTime": "2026-09-25T08:52:02.266459590Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "2102090",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "64",
+        "identity": "73388@ringdeMacStudio",
+        "requestId": "1e4e8953-9eb6-464f-ac58-883a87732999",
+        "historySizeBytes": "11906",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        }
+      }
+    },
+    {
+      "eventId": "66",
+      "eventTime": "2026-09-25T08:52:02.276693382Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "2102094",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "64",
+        "startedEventId": "65",
+        "identity": "73388@ringdeMacStudio",
+        "workerVersion": {
+          "buildId": "m0-py-1.32.0-dev"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "67",
+      "eventTime": "2026-09-25T08:52:02.277240715Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_CONTINUED_AS_NEW",
+      "taskId": "2102095",
+      "workflowExecutionContinuedAsNewEventAttributes": {
+        "newExecutionRunId": "22ccb6b7-4ef2-4854-894d-3b1c2017412a",
+        "workflowType": {
+          "name": "GoalWorkflow"
+        },
+        "taskQueue": {
+          "name": "ring-control",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "eyJhZG1pdHRlZF9hdHRlbXB0X2lkcyI6W10sImFkdmFuY2VfaG9wcyI6MSwiYWR2YW5jZWRfYWN0aXZpdHlfaWRzIjpbIjYzMDVjZmU0LTkyZGQtNGQwOS1iZjNmLWJmYmM0ZDY2ZWUxZSJdLCJjaGVja3BvaW50X3NjaGVtYV92ZXJzaW9uIjpudWxsLCJjb21tYW5kX2lkIjoiNDIxMGE5YzAtYWI1ZC00M2M1LWJjNjAtODU3OWU3ZTk2YjJlIiwiY29tbWFuZF9pZHNfY29uc3VtZWQiOlsiNDIxMGE5YzAtYWI1ZC00M2M1LWJjNjAtODU3OWU3ZTk2YjJlIl0sImNvbnRpbnVlX2FzX25ld19vbl9vYnNlcnZlX3RpbWVvdXQiOmZhbHNlLCJlbmFibGVfY29udGludWVfYXNfbmV3IjpmYWxzZSwiZ2VuZXJhdGlvbiI6MCwiZ29hbF9pZCI6IjI1N2VjMDFkLWQ0ZjctNGEzMy05NmEyLTQwNjA0ZGQwMWI3ZiIsImdvYWxfcmV2aWV3c19yZXF1ZXN0ZWQiOjAsImludGVudF90dGxfc2Vjb25kcyI6bnVsbCwiaW50ZW50X3ZhbGlkX3VudGlsIjpudWxsLCJtYXhfYWR2YW5jZV9ob3BzIjoyMDAsIm1heF9yZWNvdmVyeV9hdHRlbXB0cyI6Mywib2JzZXJ2ZV9tYXhfdGlja3MiOjYwLCJvd25lcl9lcG9jaCI6IjMiLCJwcmlvcl9ydW5faWQiOiIwMWEwZDdjMy05MTFhLTdlN2ItYmJiZS0zYTRjMGQ2MmVlZTQiLCJyZWNvdmVyeV9hdHRlbXB0cyI6MCwicmVjb3ZlcnlfZW5hYmxlZCI6ZmFsc2UsInJ1bm5lcl9hdXRob3JpdHlfcXVldWVzIjp0cnVlLCJza2lwX2FkbWl0X2FjdGl2aXR5X2lkcyI6W119"
+            }
+          ]
+        },
+        "workflowRunTimeout": "0s",
+        "workflowTaskTimeout": "10s",
+        "workflowTaskCompletedEventId": "66",
+        "inheritBuildId": true
+      }
+    }
+  ]
+}
