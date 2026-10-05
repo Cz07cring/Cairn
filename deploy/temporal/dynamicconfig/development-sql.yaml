@@ -1,0 +1,9 @@
+# 本机联调 dynamic config（挂载到 /etc/temporal/config/dynamicconfig）
+# 来源：temporalio/docker-compose development-sql.yaml；仅开发用。
+
+limit.maxIDLength:
+  - value: 255
+    constraints: {}
+system.forceSearchAttributesCacheRefreshOnRead:
+  - value: true # 仅开发；生产勿开
+    constraints: {}

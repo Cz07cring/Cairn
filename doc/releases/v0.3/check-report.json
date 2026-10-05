@@ -1,0 +1,20 @@
+{
+  "spec_version": "v0.3",
+  "scope": "documentation and Content fixtures only",
+  "markdown_files": 11,
+  "local_links": 41,
+  "json_examples": 2,
+  "activity_kinds": 10,
+  "routes": 82,
+  "content_schemas": 25,
+  "positive_vectors": 10,
+  "negative_vectors": 11,
+  "javascript": {
+    "javascript_valid_vectors": 10,
+    "status": "PASS"
+  },
+  "archive_crc_checked": 4,
+  "application_tests": "NOT_RUN",
+  "errors": [],
+  "status": "PASS"
+}

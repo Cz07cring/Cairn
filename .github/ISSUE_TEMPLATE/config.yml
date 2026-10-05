@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 规格与进度
+    url: https://github.com/Cz07cring/ringharness/blob/main/doc/implementation/进度与验证.md
+    about: 先查进度文与 doc/v0.6，再提 Issue（仓库名创建后请按实际 URL 调整）
+  - name: 第三方联合开发说明
+    url: https://github.com/Cz07cring/ringharness/blob/main/doc/engineering/第三方联合开发.md
+    about: Harness / Temporal / Verifier / Broker 集成边界

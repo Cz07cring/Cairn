@@ -1,0 +1,247 @@
+{
+  "spec_version": "v0.5",
+  "status": "FROZEN_SPEC",
+  "frozen_at": "2026-09-11T03:49:58.889563+00:00",
+  "scope": "Complete V1 development specification; FG01/FG02 closure and global protocol review",
+  "content_schema_version": 3,
+  "event_schema_version": 1,
+  "application_status": "NOT_IMPLEMENTED",
+  "application_tests": "NOT_RUN",
+  "previous_release": "v0.4",
+  "hash_algorithm": "SHA-256",
+  "git_tag": null,
+  "files": [
+    {
+      "path": "01-开发文档.md",
+      "bytes": 41902,
+      "sha256": "654f3dcbeab98851f597537e16b7be89477f997a559e34895fe3759a80c0bfae"
+    },
+    {
+      "path": "02-测试文档.md",
+      "bytes": 20724,
+      "sha256": "6d3742e7a1d3a8cf4789d85aa1cefe33f6e5f2032c676b39363a0af46d09b5e4"
+    },
+    {
+      "path": "03-收敛文档.md",
+      "bytes": 13412,
+      "sha256": "40078c1ea897d126a4a5a2b9c6aa061f79b8c5bc86ed888c1b186a02c2eb1e9c"
+    },
+    {
+      "path": "04-前端文档.md",
+      "bytes": 11980,
+      "sha256": "8d171b6c3ab4debd28c76bbc97201f6d6acf14e0185847c1926e61936be350eb"
+    },
+    {
+      "path": "05-API接口文档.md",
+      "bytes": 84820,
+      "sha256": "8c9ad0e581dda404343bd5b1748ad3ff3fb084a08a55c1496f723ae086e20dc1"
+    },
+    {
+      "path": "06-E2E开发调试文档.md",
+      "bytes": 14029,
+      "sha256": "40c1aa5d83b835e09dacb444847577eafebfee9545a549feda4adcd8cbbb810b"
+    },
+    {
+      "path": "07-UX交互文档.md",
+      "bytes": 10803,
+      "sha256": "aad3becb4a47421ab568db8483a0bae2306360368d4cfd1b51a55314f60a38c8"
+    },
+    {
+      "path": "08-工程化结构文档.md",
+      "bytes": 22282,
+      "sha256": "bc922ce13d46fb95f5f7407b9754daf1b029f85efa27f95534c8b257061047dd"
+    },
+    {
+      "path": "09-Harness上游核验.md",
+      "bytes": 14535,
+      "sha256": "453066613d1edb936ec87d8e32e8d0559e700a7e460432df66f4d79875284647"
+    },
+    {
+      "path": "10-架构审计与改进建议.md",
+      "bytes": 9310,
+      "sha256": "4398609eb941ed33fb1f55966e86ae5e55e02359692f4825a543654bdddcc457"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5355,
+      "sha256": "b7ed9d0c17f748b5fd5fa874c14b5a5f6e9570db5f41fa64865678030931c1de"
+    },
+    {
+      "path": "archive/sonic-mea-user-reference.png",
+      "bytes": 1027440,
+      "sha256": "208d61e4cc9cb0eef0fd57aacfab38647f1f61580892e71040c65dade56bb7a1"
+    },
+    {
+      "path": "archive/v0.1-before-audit-fixes.zip",
+      "bytes": 68082,
+      "sha256": "34f0284e76f2dfb559398c872b7f1d82de7061736548e10ca7fcab7113fbf97a"
+    },
+    {
+      "path": "archive/v0.2-before-detail-audit.zip",
+      "bytes": 70624,
+      "sha256": "e6297271d8919fcf6493dd4b5c5080d0fc0bf0471a3da3a85ddff7dbaa95a1d3"
+    },
+    {
+      "path": "archive/v0.2-before-freeze.zip",
+      "bytes": 96186,
+      "sha256": "384a708c6ee22cd3e13fe71f5f97a87eccab18ed7b36b61fdfdc389a04c6bc44"
+    },
+    {
+      "path": "archive/v0.2-before-mea-acceptance-audit.zip",
+      "bytes": 85287,
+      "sha256": "d0fe62529bed689a0f215865a5f5aac73cf790a5e5db90d9ebb4287f8c66546a"
+    },
+    {
+      "path": "contracts/canonicalization-v1.json",
+      "bytes": 1573,
+      "sha256": "c701594c65d898b3d1f11d58f8dc2202f2cebaf68d7792bf51d1b8e491ae85e4"
+    },
+    {
+      "path": "contracts/canonicalization-v2.json",
+      "bytes": 1651,
+      "sha256": "b07d5d338b981f24923e45a12bf9f2f4baf7e9c226b308fb1213eacc9fcac08f"
+    },
+    {
+      "path": "contracts/canonicalization-v3.json",
+      "bytes": 1681,
+      "sha256": "a89495b15c25b5e7fe40cfe79469b951a4841c83dbaa2a13b381c03e624e83f3"
+    },
+    {
+      "path": "contracts/content-v1.schema.json",
+      "bytes": 82414,
+      "sha256": "11248343689c2ef66fa6260eed5a8386e58fd3358232456bcc6b99627f0a180c"
+    },
+    {
+      "path": "contracts/content-v2.schema.json",
+      "bytes": 133274,
+      "sha256": "5aaff1170224ab3ecea5b0f6188b22828907287989ea767a5af281cead4bbe68"
+    },
+    {
+      "path": "contracts/content-v3.schema.json",
+      "bytes": 137836,
+      "sha256": "c455467476fa41448a703be4f5411b6a24050a8456a36a1b5b436c17f20ce4c3"
+    },
+    {
+      "path": "contracts/event-v1.schema.json",
+      "bytes": 150,
+      "sha256": "d7586a1cf1968f365990462d4ac3db778a5d52bfb3bc089ff9fc0d1ef35a6ecc"
+    },
+    {
+      "path": "contracts/gate-fixtures-v3.json",
+      "bytes": 3880,
+      "sha256": "72b0290b056a7824e33fdf20283eb161dda02cb12639055fb20358b6d1b24cad"
+    },
+    {
+      "path": "contracts/hash-vectors-v1.json",
+      "bytes": 11677,
+      "sha256": "021bb2ea690ad822c3e12a49d565dbb85f9d90da183e9f522808c9e510bef57b"
+    },
+    {
+      "path": "contracts/hash-vectors-v2.json",
+      "bytes": 11709,
+      "sha256": "eb9a6bd03ea2831b9f020d739bcffb63fb74b73749e81a828361ff86488d1722"
+    },
+    {
+      "path": "contracts/hash-vectors-v3.json",
+      "bytes": 11704,
+      "sha256": "7e97f4d1720d29a8f5215cedd80ee958c8d84dc9ea92633fede3e96d3812d0bc"
+    },
+    {
+      "path": "contracts/readiness-fixtures-v2.json",
+      "bytes": 98684,
+      "sha256": "98ec6803a0bbd698c318f06c03fa6680f4e919133e1a6eb4f557e7e4d670bcbd"
+    },
+    {
+      "path": "contracts/verifier-fixtures-v2.json",
+      "bytes": 28042,
+      "sha256": "dfe9d276cfc03087adaf1a805af7c7a9da5b7819507382e28ee40772798ee1ab"
+    },
+    {
+      "path": "releases/v0.3/check-report.json",
+      "bytes": 445,
+      "sha256": "b78d766776950c75a6a78b1b8930cfa8de9c024efcaf16106f5aaa4d679b4a72"
+    },
+    {
+      "path": "releases/v0.3/freeze-receipt.json",
+      "bytes": 363,
+      "sha256": "a22f0be55bfdc939a504e235ea893e1af87ea76c5cae4a6672bb5aa0918aad9a"
+    },
+    {
+      "path": "releases/v0.3/manifest.json",
+      "bytes": 4058,
+      "sha256": "1a768513973cc5873b5391f20140e2870dd01a4debdb3b148b61f1e404f3dcfb"
+    },
+    {
+      "path": "releases/v0.3/snapshot.zip",
+      "bytes": 1440471,
+      "sha256": "f52bc6fa4e62e34f1b1d1a0441d80e377cbccba00c4fd844ab08937482528c6e"
+    },
+    {
+      "path": "releases/v0.4/check-report.json",
+      "bytes": 612,
+      "sha256": "9be993f61fe6ed416feef12afe79a03212faa217c66a4cbf1965a6f9c766d6e0"
+    },
+    {
+      "path": "releases/v0.4/freeze-receipt.json",
+      "bytes": 349,
+      "sha256": "a321485851bdb3979e00be0d6fd957f3699378f6f5d1b9e3caa4340ddcc24eee"
+    },
+    {
+      "path": "releases/v0.4/manifest.json",
+      "bytes": 6179,
+      "sha256": "18bbcfa7a73c0163f9a9e441a65cceafed788629eae2d445e4932c55e4831b49"
+    },
+    {
+      "path": "releases/v0.4/snapshot.zip",
+      "bytes": 2915105,
+      "sha256": "5e17681b3ce1bdfabf20e07adcae81a29259a1dd41caa5cca799a93596debb76"
+    },
+    {
+      "path": "releases/v0.5/check-report.json",
+      "bytes": 713,
+      "sha256": "91e3736f89cb6d7c2a59c5b703d0678f722ee21604110d771a7fbc363f5a2ea0"
+    },
+    {
+      "path": "reviews/v0.3-development-readiness-review.md",
+      "bytes": 7950,
+      "sha256": "eb9db7587fa7ee201953a884d43a17529bd5c943bf58b4206d025b2caa9c657d"
+    },
+    {
+      "path": "reviews/v0.4-freeze-gate-review.md",
+      "bytes": 4449,
+      "sha256": "c0cee31b835b62b079e5bc383e4a366a343549e553586f5ed3a39b5f5fb9e453"
+    },
+    {
+      "path": "reviews/v0.5-global-freeze-review.md",
+      "bytes": 2902,
+      "sha256": "1001149829fe07f713fe270bac728603c7f6e5115b144da71f5c690185e259ac"
+    },
+    {
+      "path": "tools/check_content.mjs",
+      "bytes": 4571,
+      "sha256": "0adf1084bd6ac3f806aba165903e6cba2035bd42c5bfdde37031a8f6a37b4a0f"
+    },
+    {
+      "path": "tools/check_gate.py",
+      "bytes": 1320,
+      "sha256": "1ec5bd876cc31bdaa13030a575290728a9bb3f6e2eceb66adbd91d4020c3b9f0"
+    },
+    {
+      "path": "tools/check_readiness.py",
+      "bytes": 2898,
+      "sha256": "6d350b6c1e5271063e850dbf24df8e9915672045fa6b673f05d6c3a2a829dc88"
+    },
+    {
+      "path": "tools/check_spec.py",
+      "bytes": 9699,
+      "sha256": "6f2eb6ad8c30e59ec4d23b817fad987d8836d087a38c8c1518ca4b1462ab02d5"
+    },
+    {
+      "path": "tools/content_codec.py",
+      "bytes": 5274,
+      "sha256": "feb31475f386b0f921d78ec54d022ae4ef75e42ea591d915b25582dbd4356381"
+    }
+  ],
+  "refrozen_at": "2026-09-13T04:47:06.237629+00:00",
+  "refreeze_reason": "协议文档按 AGENTS §2 随实现同步后重算；原始 frozen_at 保留，本字段用于标明清单已被重算，避免把新哈希误认为初始冻结值。"
+}

@@ -1,0 +1,19 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env*
+!.env.example
+.runtime/
+.DS_Store
+.coverage
+htmlcov/
+*.egg-info/
+.mypy_cache/
+.turbo/
+apps/*/.vite/
+# 本机 Harness checkout（固定 SHA，勿整树上库）
+.runtime/deepseek-harness/

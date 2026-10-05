@@ -1,0 +1,688 @@
+{
+  "spec_version": "v0.4",
+  "scope": "illustrative schema and deterministic aggregation fixtures; IDs and digests placeholders, not runtime measurements",
+  "examples": [
+    {
+      "layer": "MECHANICAL",
+      "definition": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "fixture.mechanical",
+        "layer": "MECHANICAL",
+        "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "entrypoint_ref": "approved.fixture.mechanical",
+        "input_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "output_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "timeout_seconds": 60,
+        "metric_definitions": [
+          {
+            "metric": "checks_passed",
+            "value_type": "BOOLEAN",
+            "unit": "boolean"
+          }
+        ],
+        "rubric_artifact_id": null,
+        "fixture_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "uncertain_rule": "INSUFFICIENT",
+        "timeout_rule": "INFRA_UNLESS_TRUSTED_METRIC",
+        "network_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "profile": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "test",
+        "target_scope": "TASK",
+        "verifier_ref": "fixture.test",
+        "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "required_layers": [
+          "MECHANICAL"
+        ],
+        "thresholds": [
+          {
+            "metric": "checks_passed",
+            "operator": "EQ",
+            "expected": "true",
+            "unit": "boolean"
+          }
+        ],
+        "required_evidence_kinds": [
+          "trusted_verifier_result"
+        ],
+        "applicability_rule_ref": "all_required"
+      },
+      "criteria": [
+        {
+          "id": "C1",
+          "description": "test",
+          "required": true,
+          "verification_profile_id": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "cases": [
+        {
+          "expected_verdict": "PASS",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "MECHANICAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": "true",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "FAIL",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "MECHANICAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": "false",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "INSUFFICIENT",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "MECHANICAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "SEMANTIC",
+      "definition": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "fixture.semantic",
+        "layer": "SEMANTIC",
+        "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "entrypoint_ref": "approved.fixture.semantic",
+        "input_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "output_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "timeout_seconds": 60,
+        "metric_definitions": [
+          {
+            "metric": "score_bp",
+            "value_type": "INTEGER",
+            "unit": "basis_points"
+          },
+          {
+            "metric": "critical_violation",
+            "value_type": "BOOLEAN",
+            "unit": "boolean"
+          }
+        ],
+        "rubric_artifact_id": "11111111-1111-4111-8111-111111111111",
+        "fixture_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "uncertain_rule": "INSUFFICIENT",
+        "timeout_rule": "INFRA_UNLESS_TRUSTED_METRIC",
+        "network_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "profile": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "test",
+        "target_scope": "TASK",
+        "verifier_ref": "fixture.test",
+        "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "required_layers": [
+          "SEMANTIC"
+        ],
+        "thresholds": [
+          {
+            "metric": "score_bp",
+            "operator": "GE",
+            "expected": "8000",
+            "unit": "basis_points"
+          },
+          {
+            "metric": "critical_violation",
+            "operator": "EQ",
+            "expected": "false",
+            "unit": "boolean"
+          }
+        ],
+        "required_evidence_kinds": [
+          "trusted_verifier_result"
+        ],
+        "applicability_rule_ref": "all_required"
+      },
+      "criteria": [
+        {
+          "id": "C1",
+          "description": "test",
+          "required": true,
+          "verification_profile_id": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "cases": [
+        {
+          "expected_verdict": "PASS",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "SEMANTIC",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": "9000",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": "false",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "FAIL",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "SEMANTIC",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": "9000",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": "true",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "INSUFFICIENT",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "SEMANTIC",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "ADVERSARIAL",
+      "definition": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "fixture.adversarial",
+        "layer": "ADVERSARIAL",
+        "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "entrypoint_ref": "approved.fixture.adversarial",
+        "input_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "output_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "timeout_seconds": 60,
+        "metric_definitions": [
+          {
+            "metric": "score_bp",
+            "value_type": "INTEGER",
+            "unit": "basis_points"
+          },
+          {
+            "metric": "critical_violation",
+            "value_type": "BOOLEAN",
+            "unit": "boolean"
+          }
+        ],
+        "rubric_artifact_id": "11111111-1111-4111-8111-111111111111",
+        "fixture_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "uncertain_rule": "INSUFFICIENT",
+        "timeout_rule": "INFRA_UNLESS_TRUSTED_METRIC",
+        "network_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "profile": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "test",
+        "target_scope": "TASK",
+        "verifier_ref": "fixture.test",
+        "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "required_layers": [
+          "ADVERSARIAL"
+        ],
+        "thresholds": [
+          {
+            "metric": "score_bp",
+            "operator": "GE",
+            "expected": "8000",
+            "unit": "basis_points"
+          },
+          {
+            "metric": "critical_violation",
+            "operator": "EQ",
+            "expected": "false",
+            "unit": "boolean"
+          }
+        ],
+        "required_evidence_kinds": [
+          "trusted_verifier_result"
+        ],
+        "applicability_rule_ref": "all_required"
+      },
+      "criteria": [
+        {
+          "id": "C1",
+          "description": "test",
+          "required": true,
+          "verification_profile_id": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "cases": [
+        {
+          "expected_verdict": "PASS",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "ADVERSARIAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": "9000",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": "false",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "FAIL",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "ADVERSARIAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": "9000",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": "true",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "INSUFFICIENT",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "ADVERSARIAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "score_bp",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              },
+              {
+                "criterion_id": "C1",
+                "metric": "critical_violation",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "GLOBAL",
+      "definition": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "fixture.global",
+        "layer": "GLOBAL",
+        "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "entrypoint_ref": "approved.fixture.global",
+        "input_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "output_schema_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "timeout_seconds": 60,
+        "metric_definitions": [
+          {
+            "metric": "checks_passed",
+            "value_type": "BOOLEAN",
+            "unit": "boolean"
+          }
+        ],
+        "rubric_artifact_id": null,
+        "fixture_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "uncertain_rule": "INSUFFICIENT",
+        "timeout_rule": "INFRA_UNLESS_TRUSTED_METRIC",
+        "network_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "profile": {
+        "project_id": "11111111-1111-4111-8111-111111111111",
+        "name": "test",
+        "target_scope": "GOAL",
+        "verifier_ref": "fixture.test",
+        "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "required_layers": [
+          "GLOBAL"
+        ],
+        "thresholds": [
+          {
+            "metric": "checks_passed",
+            "operator": "EQ",
+            "expected": "true",
+            "unit": "boolean"
+          }
+        ],
+        "required_evidence_kinds": [
+          "trusted_verifier_result"
+        ],
+        "applicability_rule_ref": "all_required"
+      },
+      "criteria": [
+        {
+          "id": "C1",
+          "description": "test",
+          "required": true,
+          "verification_profile_id": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "cases": [
+        {
+          "expected_verdict": "PASS",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "GLOBAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": "true",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "FAIL",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "GLOBAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": "false",
+                "status": "OBSERVED",
+                "evidence_ids": [
+                  "11111111-1111-4111-8111-111111111111"
+                ],
+                "reason_code": "MEASURED"
+              }
+            ]
+          }
+        },
+        {
+          "expected_verdict": "INSUFFICIENT",
+          "run": {
+            "project_id": "11111111-1111-4111-8111-111111111111",
+            "producer_activity_id": "11111111-1111-4111-8111-111111111111",
+            "producer_attempt_id": "11111111-1111-4111-8111-111111111111",
+            "subject_type": "CANDIDATE",
+            "subject_id": "11111111-1111-4111-8111-111111111111",
+            "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "verification_profile_id": "11111111-1111-4111-8111-111111111111",
+            "verifier_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "audit_round": 1,
+            "layer": "GLOBAL",
+            "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "receipt_ids": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "observations": [
+              {
+                "criterion_id": "C1",
+                "metric": "checks_passed",
+                "value": null,
+                "status": "MISSING",
+                "evidence_ids": [],
+                "reason_code": "MISSING_OUTPUT"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[project]
+name = "order-service-e2e"
+version = "0.1.0"
+description = "Ringharness business E2E fixture: order idempotency defect"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,56 @@
+name: Foundation checks
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+concurrency:
+  group: foundation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+        env:
+          POSTGRES_USER: ring
+          POSTGRES_DB: ring_test
+          POSTGRES_PASSWORD: ci-ephemeral-only
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U ring -d ring_test" --health-interval 5s --health-retries 10
+    env:
+      RING_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+      RING_TEST_S3_ENDPOINT: http://127.0.0.1:9000
+      RING_TEST_S3_ACCESS_KEY: ring-test
+      RING_TEST_S3_SECRET_KEY: ci-ephemeral-s3-only
+      RING_TEST_DATABASE_URL: postgresql+psycopg://ring:ci-ephemeral-only@127.0.0.1:5432/ring_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm install --global pnpm@10.28.0
+      - run: uv sync --frozen --python 3.12
+      - run: pnpm install --frozen-lockfile
+      - name: Start isolated object storage
+        run: |
+          docker run -d --name ring-s3 -p 127.0.0.1:9000:9000 -e MINIO_ROOT_USER=ring-test -e MINIO_ROOT_PASSWORD=ci-ephemeral-s3-only quay.io/minio/minio@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e server /data
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/ready; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - run: uv run alembic upgrade head
+      - run: uv run pytest -q
+      - run: uv run ruff check apps/control packages tests scripts migrations
+      - run: pnpm test && pnpm build
+      # Codex P0-1/P0-3/P1-4：soak 分类器 + 同 SHA 锁版 + 账本/故障样本纯函数闸（无 live 配额）
+      - name: Release-candidate operational gates (self-test)
+        run: bash scripts/check_release_candidate_gates.sh
+      - run: uv run python scripts/generate_contracts.py
+      - run: git diff --exit-code -- contracts packages/api-client/src/generated.ts
+      - run: python3 doc/tools/check_spec.py --verify-freeze

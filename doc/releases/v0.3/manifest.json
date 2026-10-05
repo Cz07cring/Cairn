@@ -1,0 +1,127 @@
+{
+  "spec_version": "v0.3",
+  "status": "FROZEN_SPEC",
+  "frozen_at": "2026-09-11T03:14:01.075880+00:00",
+  "scope": "Complete V1 development specification; not an application release",
+  "application_status": "NOT_IMPLEMENTED",
+  "application_tests": "NOT_RUN",
+  "hash_algorithm": "SHA-256",
+  "git_tag": null,
+  "files": [
+    {
+      "path": "01-开发文档.md",
+      "bytes": 39283,
+      "sha256": "e7553c147a04e9c682553881596aae14135aa327581378d88effaada6ac48881"
+    },
+    {
+      "path": "02-测试文档.md",
+      "bytes": 18414,
+      "sha256": "c38c512a06ee0bbc0904feb55ff147fffe6e5034b29e05d70f29fef1cdbdbcda"
+    },
+    {
+      "path": "03-收敛文档.md",
+      "bytes": 11668,
+      "sha256": "13beac95cee1462269dfed8d9d619319ca2a32479a13d5cad9fdff2ec6c3dbad"
+    },
+    {
+      "path": "04-前端文档.md",
+      "bytes": 10636,
+      "sha256": "985e6a901f1c8a86dcb25cd511c5ffc63b65986f64873d48ddf8f2b6684f3ecb"
+    },
+    {
+      "path": "05-API接口文档.md",
+      "bytes": 62175,
+      "sha256": "8a19e37e498bcd221e04c46d7cfbf7e21a021dcab5533748d72733c499829124"
+    },
+    {
+      "path": "06-E2E开发调试文档.md",
+      "bytes": 12133,
+      "sha256": "b4c15b0b83e7d1c809be9c29ca2d741380a2f93acf54acabee1411939c8fe794"
+    },
+    {
+      "path": "07-UX交互文档.md",
+      "bytes": 9752,
+      "sha256": "f389461a6a790d22157a360e9f6bce10f00c699e64359bf02416e1409efa343b"
+    },
+    {
+      "path": "08-工程化结构文档.md",
+      "bytes": 19547,
+      "sha256": "9106f74dc6d26ea4f2f19b0f037ac63574c03fc59394230373c17a6f3b45322e"
+    },
+    {
+      "path": "09-Harness上游核验.md",
+      "bytes": 13813,
+      "sha256": "2d497a93fc9c2d267c35a298e4a8847cfb3a0a2b61dc4ef8989a39a489724a2a"
+    },
+    {
+      "path": "10-架构审计与改进建议.md",
+      "bytes": 6730,
+      "sha256": "9f99b276581d8908411d98c779177cf9342370be1c6a13a3d52a1d73101dea84"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4421,
+      "sha256": "9135a0d68c2c3450a44576e79144e1a729b0e405a1d34cd55d1b4eea058ffb47"
+    },
+    {
+      "path": "archive/sonic-mea-user-reference.png",
+      "bytes": 1027440,
+      "sha256": "208d61e4cc9cb0eef0fd57aacfab38647f1f61580892e71040c65dade56bb7a1"
+    },
+    {
+      "path": "archive/v0.1-before-audit-fixes.zip",
+      "bytes": 68082,
+      "sha256": "34f0284e76f2dfb559398c872b7f1d82de7061736548e10ca7fcab7113fbf97a"
+    },
+    {
+      "path": "archive/v0.2-before-detail-audit.zip",
+      "bytes": 70624,
+      "sha256": "e6297271d8919fcf6493dd4b5c5080d0fc0bf0471a3da3a85ddff7dbaa95a1d3"
+    },
+    {
+      "path": "archive/v0.2-before-freeze.zip",
+      "bytes": 96186,
+      "sha256": "384a708c6ee22cd3e13fe71f5f97a87eccab18ed7b36b61fdfdc389a04c6bc44"
+    },
+    {
+      "path": "archive/v0.2-before-mea-acceptance-audit.zip",
+      "bytes": 85287,
+      "sha256": "d0fe62529bed689a0f215865a5f5aac73cf790a5e5db90d9ebb4287f8c66546a"
+    },
+    {
+      "path": "contracts/canonicalization-v1.json",
+      "bytes": 1573,
+      "sha256": "c701594c65d898b3d1f11d58f8dc2202f2cebaf68d7792bf51d1b8e491ae85e4"
+    },
+    {
+      "path": "contracts/content-v1.schema.json",
+      "bytes": 82414,
+      "sha256": "11248343689c2ef66fa6260eed5a8386e58fd3358232456bcc6b99627f0a180c"
+    },
+    {
+      "path": "contracts/hash-vectors-v1.json",
+      "bytes": 11677,
+      "sha256": "021bb2ea690ad822c3e12a49d565dbb85f9d90da183e9f522808c9e510bef57b"
+    },
+    {
+      "path": "releases/v0.3/check-report.json",
+      "bytes": 445,
+      "sha256": "b78d766776950c75a6a78b1b8930cfa8de9c024efcaf16106f5aaa4d679b4a72"
+    },
+    {
+      "path": "tools/check_content.mjs",
+      "bytes": 2419,
+      "sha256": "a63390f4964e333bb79548bbd584b27f9105c300fb0d1c3767381bd0f7af1b5f"
+    },
+    {
+      "path": "tools/check_spec.py",
+      "bytes": 9372,
+      "sha256": "eef8e162cd1fe1d128e1a64ea0da353ab9de20740ace0caddf13d3789a4368e5"
+    },
+    {
+      "path": "tools/content_codec.py",
+      "bytes": 4651,
+      "sha256": "8c2fdfb3cf08e2fad4cec04d13284abe34161d0870d15419bfc0a5e78dddfd7a"
+    }
+  ]
+}

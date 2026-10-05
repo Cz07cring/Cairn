@@ -1,0 +1,40 @@
+/* 本仓 Agent 聊天面样式（类 Codex 跟流）；≠ Goal DONE */
+.wb-agent-chat{margin:12px 0;padding:0!important;overflow:hidden;display:flex;flex-direction:column;min-height:420px}
+.wb-agent-chat-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 18px;border-bottom:1px solid var(--wb-border)}
+.wb-agent-chat-header small{color:var(--wb-brand);font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.wb-agent-chat-header h2{margin:3px 0;font-size:16px}
+.wb-agent-chat-header p{margin:0;color:var(--wb-muted);font-size:10px;max-width:52ch}
+.wb-agent-chat-header button{padding:6px 10px;border:1px solid var(--wb-border);border-radius:6px;background:var(--wb-card);color:var(--wb-muted);font-size:10px;cursor:pointer}
+.wb-agent-chat-header button.active{color:var(--wb-fg);border-color:var(--wb-brand)}
+.wb-agent-chat-list{flex:1;min-height:280px;max-height:calc(100vh - 360px);overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.wb-agent-chat-empty{margin:auto;text-align:center;color:var(--wb-muted);padding:24px}
+.wb-agent-chat-empty b{display:block;color:var(--wb-fg);font-size:12px;margin-bottom:4px}
+.wb-agent-chat-empty span{font-size:10px}
+.wb-agent-chat-bubble{padding:11px 13px;border:1px solid var(--wb-border);border-radius:10px;background:var(--wb-card);max-width:min(720px,100%)}
+.wb-agent-chat-bubble.is-assistant{align-self:flex-start;border-left:3px solid var(--wb-brand)}
+.wb-agent-chat-bubble.is-tool{align-self:stretch;background:color-mix(in srgb,var(--wb-soft) 55%,var(--wb-card));font-size:12px}
+.wb-agent-chat-bubble.is-system{align-self:center;max-width:90%;background:color-mix(in srgb,var(--wb-brand) 6%,var(--wb-card));font-size:11px}
+.wb-agent-chat-bubble.is-user{align-self:flex-end;border-left:3px solid var(--wb-success)}
+.wb-agent-chat-bubble.is-warning{border-color:color-mix(in srgb,var(--wb-warning) 45%,var(--wb-border))}
+.wb-agent-chat-bubble.is-danger{border-color:color-mix(in srgb,var(--wb-danger) 45%,var(--wb-border))}
+.wb-agent-chat-bubble.is-success{border-color:color-mix(in srgb,var(--wb-success) 35%,var(--wb-border))}
+.wb-agent-chat-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--wb-muted);font-size:9px;margin-bottom:6px}
+.wb-agent-chat-meta>span:first-child{padding:2px 6px;border-radius:999px;background:var(--wb-soft);color:var(--wb-fg);font-weight:650}
+.wb-agent-chat-bubble>p{margin:0;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.wb-agent-chat-bubble details{margin-top:8px;color:var(--wb-muted);font-size:9px}
+.wb-agent-chat-bubble details summary{cursor:pointer;color:var(--wb-brand);width:max-content}
+.wb-agent-chat-bubble pre{margin:6px 0 0;padding:8px;border-radius:6px;background:var(--wb-soft);font:9px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-all}
+.wb-agent-chat-composer{border-top:1px solid var(--wb-border);padding:12px 18px 14px;display:grid;gap:8px;background:color-mix(in srgb,var(--wb-soft) 35%,var(--wb-card))}
+.wb-agent-chat-composer textarea{width:100%;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--wb-border);border-radius:8px;background:var(--wb-card);color:var(--wb-fg);font:inherit}
+.wb-agent-chat-composer textarea:disabled{opacity:.72;cursor:not-allowed}
+.wb-agent-chat-composer-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wb-agent-chat-boundary{color:var(--wb-muted);font-size:10px;line-height:1.4;max-width:70%}
+.wb-agent-chat-composer button[type=submit]{padding:8px 14px;border:0;border-radius:6px;background:var(--wb-primary);color:var(--wb-bg);font-size:12px;font-weight:650;cursor:pointer}
+.wb-agent-chat-composer button[type=submit]:disabled{opacity:.45;cursor:not-allowed}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){
+  .wb-agent-chat-header{display:block}
+  .wb-agent-chat-header button{margin-top:10px}
+  .wb-agent-chat-composer-actions{flex-direction:column;align-items:stretch}
+  .wb-agent-chat-boundary{max-width:none}
+}

@@ -1,0 +1,8 @@
+{
+  "spec_version": "v0.5",
+  "frozen_at": "2026-09-11T03:49:58.889563+00:00",
+  "manifest_sha256": "22f04b903f67017e7ecf046c2120cc946445149ba478695ca743bc04d8cca9b6",
+  "snapshot_sha256": "43e4f2c1aa0d0c0296ab69f37c3595e5aaf8b33ae14bfb4232c6ae2a24546b64",
+  "note": "Integrity receipt only; not an external signature or application acceptance. 重算于协议文档同步之后（见 manifest.refreeze_reason）。",
+  "refrozen_at": "2026-09-13T04:47:06.237629+00:00"
+}

@@ -1,0 +1,32 @@
+{
+  "spec_version": "v0.5",
+  "scope": "documentation and Content fixtures only",
+  "markdown_files": 11,
+  "local_links": 49,
+  "json_examples": 2,
+  "activity_kinds": 10,
+  "routes": 87,
+  "content_schemas": 29,
+  "positive_vectors": 10,
+  "negative_vectors": 11,
+  "javascript": {
+    "javascript_valid_vectors": 10,
+    "field_event_cases": 46,
+    "status": "PASS"
+  },
+  "readiness": {
+    "status": "PASS",
+    "field_event_cases": 46,
+    "verifier_fixture_cases": 12,
+    "runtime_tests": "NOT_RUN"
+  },
+  "gate": {
+    "status": "PASS",
+    "specification_cases": 17,
+    "runtime_tests": "NOT_RUN"
+  },
+  "archive_crc_checked": 4,
+  "application_tests": "NOT_RUN",
+  "errors": [],
+  "status": "PASS"
+}

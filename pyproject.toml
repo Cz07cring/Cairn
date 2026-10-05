@@ -1,0 +1,47 @@
+[project]
+name = "ringharness"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "ring-control",
+    "ring-broker-app",
+    "ring-workflow-worker",
+    "ring-evidence-ledger",
+    "ring-context-compiler",
+    "ring-read-model",
+    "ring-observability",
+    "ring-orchestration",
+    "alembic>=1.14,<2",
+]
+[dependency-groups]
+dev = ["pytest>=9.1.1,<10", "httpx>=0.27,<1", "ruff>=0.11,<1"]
+[tool.uv.workspace]
+members = [
+    "apps/control",
+    "apps/execution-broker",
+    "apps/workflow-worker",
+    "packages/control_kernel",
+    "packages/execution_broker",
+    "packages/evidence_ledger",
+    "packages/context_compiler",
+    "packages/read_model",
+    "packages/observability",
+    "packages/orchestration",
+]
+[tool.uv.sources]
+ring-control = { workspace = true }
+ring-execution-broker = { workspace = true }
+ring-control-kernel = { workspace = true }
+ring-evidence-ledger = { workspace = true }
+ring-context-compiler = { workspace = true }
+ring-read-model = { workspace = true }
+ring-observability = { workspace = true }
+ring-orchestration = { workspace = true }
+ring-broker-app = { workspace = true }
+ring-workflow-worker = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+[tool.ruff]
+line-length = 100
+target-version = "py312"

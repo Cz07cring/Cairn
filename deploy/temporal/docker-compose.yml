@@ -1,0 +1,57 @@
+# 本机 Temporal 联调模板（M0）。
+# 镜像按 digest 钉扎（见 VERSIONS.md）；禁止 latest。
+# 端口仅绑定 127.0.0.1。不要并入 scripts/serve_local.py。
+# 宿主 5433 常被其他服务占用，Temporal 自用 PG 映射到 15433。
+
+services:
+  temporal:
+    image: temporalio/auto-setup@sha256:607d68caa111338d754771efb876c92dfcdae06d056e4530bb31cd0f37406e6a
+    ports:
+      - "127.0.0.1:7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    depends_on:
+      # **必须用 condition: service_healthy，不能用短语法 `- postgresql`。**
+      # 短语法只等容器「已启动」，不等 PG「可接连接」；auto-setup 的 schema 初始化
+      # 会跑在 PG 就绪之前，报 `pq: the database system is starting up` →
+      # `no usable database connection found` → **Temporal 进程直接退出**。
+      # 退出后外层 120s 就绪重试再久也无用（容器已死）。
+      # 2026-09-13 CI 实测命中一次（temporal-path 作业失败），属真实竞态非抖动。
+      postgresql:
+        condition: service_healthy
+  postgresql:
+    image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94
+    # Temporal 自用库，与业务 PG 隔离；勿写入 .runtime 业务配置
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+    ports:
+      - "127.0.0.1:15433:5432"
+    volumes:
+      - temporal-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      # pg_isready 随 postgres 镜像自带；-U 用上方声明的用户。
+      # start_period 给首次初始化（initdb）留时间，避免早期失败被计入 retries。
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+  temporal-ui:
+    image: temporalio/ui@sha256:28bb3ea5a6ea3e09f16b521f32ab727c96470f7f1e420c66a6cbfb02001a8aa2
+    ports:
+      - "127.0.0.1:8233:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+    depends_on:
+      - temporal
+
+volumes:
+  temporal-pg-data:

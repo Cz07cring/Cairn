@@ -1,0 +1,31 @@
+name: 功能请求
+description: 新能力或规格澄清（非第三方集成）
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提议方案
+      description: 关联 doc/v0.6 或 doc/01–10 条目；说明是否触及 DONE / 租约 / 证据
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 主要落点
+      options:
+        - Kernel / Control API
+        - Temporal / orchestration
+        - Runner / Harness
+        - Broker
+        - Web / UX
+        - 文档 / 测试 / CI
+    validations:
+      required: true

@@ -1,0 +1,23 @@
+{
+  "name": "@ring/runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "temporal-worker": "tsx src/temporal/cli.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsx": "4.20.5",
+    "vitest": "^3.2.0"
+  },
+  "dependencies": {
+    "@temporalio/activity": "1.23.0",
+    "@temporalio/client": "1.23.0",
+    "@temporalio/worker": "1.23.0",
+    "@temporalio/workflow": "1.23.0"
+  }
+}
