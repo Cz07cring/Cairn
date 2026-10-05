@@ -8,8 +8,10 @@
 `Idempotency-Key`，再以用户的 Ring 会话向 Ring Control 发送相同字节。
 网络中断、回包异常或 Ring 拒绝时，本地状态保留为 `UNKNOWN`；同一快照
 重试使用原主体、原正文和原键。收到与本地快照、Goal、候选和主体完全一致
-的 Ring 回执后才记为 `ACKED`。GET 只显示本地最后一次观察，不宣称
-Ring 当前状态。`ACKED` 不是 Plan 发布、Task 创建或 Goal DONE。
+的 Ring 回执后才记为 `ACKED`。GET 对 `ACKED` 记录使用原 Ring ID 回读，
+逐字段核对来源后才显示当前 `STAGED`、`BOUND` 或 `STALE`；Ring 读取失败
+显示 `UNKNOWN`，同时保留本地 ACKED 记录。`ACKED` 不是 Plan 发布、Task
+创建或 Goal DONE。
 
 页面在已封存快照卡片提供登记、原请求重试和本地记录回读。完整的 PLAN
 准入、Runner 消费、Temporal 唤醒及最终 E2E 仍按集成计划后续批次处理。

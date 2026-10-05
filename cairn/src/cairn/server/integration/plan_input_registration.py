@@ -22,7 +22,9 @@ def _canonical_uuid(value: Any) -> bool:
         return False
 
 
-def registration_view(row: sqlite3.Row) -> dict[str, Any]:
+def registration_view(
+    row: sqlite3.Row, *, ring_current_status: str = "UNKNOWN",
+) -> dict[str, Any]:
     """Return an observed local write state, never a Ring Goal/Task outcome."""
     return {
         "snapshot_digest": row["snapshot_digest"],
@@ -30,9 +32,31 @@ def registration_view(row: sqlite3.Row) -> dict[str, Any]:
         "ring_plan_input_id": row["ring_plan_input_id"],
         "ring_content_digest": row["ring_content_digest"],
         "ring_status_observed": row["ring_status"],
+        "ring_current_status": ring_current_status,
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
+
+
+def current_registration_status(
+    row: sqlite3.Row, snapshot: dict[str, Any], ring_result: dict[str, Any],
+) -> str:
+    """Only report a current Ring status after checking the immutable identity."""
+    if (
+        row["state"] != "ACKED"
+        or ring_result.get("id") != row["ring_plan_input_id"]
+        or ring_result.get("project_id") != row["ring_project_id"]
+        or ring_result.get("goal_id") != row["ring_goal_id"]
+        or ring_result.get("created_by") != row["actor"]
+        or ring_result.get("content_digest") != row["snapshot_digest"]
+        or ring_result.get("candidate_plan_id") != snapshot["candidate_plan_id"]
+        or ring_result.get("candidate_content_digest") != snapshot["candidate_content_digest"]
+        or ring_result.get("payload") != snapshot
+        or ring_result.get("marks_goal_done") is not False
+        or ring_result.get("status") not in {"STAGED", "BOUND", "STALE"}
+    ):
+        raise HTTPException(503, "Ring PlanInput readback is inconsistent")
+    return ring_result["status"]
 
 
 def prepare_registration(

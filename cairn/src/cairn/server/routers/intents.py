@@ -15,11 +15,11 @@ from cairn.server.integration.plan_snapshot import (
     decode_snapshot, read_candidate_summary, seal_snapshot,
 )
 from cairn.server.integration.plan_input_registration import (
-    accept_registration, prepare_registration, registration_view,
+    accept_registration, current_registration_status, prepare_registration, registration_view,
 )
 from cairn.server.integration.ring_client import (
     RingContractUnknown, RingDenied, RingUnavailable, RingWriteRejected,
-    read_collection, submit_plan_candidate, submit_plan_input,
+    read_collection, read_plan_input, submit_plan_candidate, submit_plan_input,
 )
 from cairn.server.models import (
     ConcludeRequest,
@@ -359,7 +359,7 @@ def register_plan_input(project_id: str, body: PlanInputRegistrationRequest, req
                 or binding["ring_project_id"] not in principal["project_ids"]):
             raise HTTPException(409, "Ring binding changed; result UNKNOWN")
         accepted = accept_registration(conn, row=row, snapshot=snapshot, ring_result=result)
-    return registration_view(accepted)
+    return registration_view(accepted, ring_current_status="STAGED")
 
 
 @router.get("/projects/{project_id}/plan-inputs/{snapshot_digest}")
@@ -385,7 +385,19 @@ def get_plan_input_registration(project_id: str, snapshot_digest: str, request: 
         if (row["ring_project_id"] != binding["ring_project_id"]
                 or row["ring_goal_id"] != binding["ring_goal_id"]):
             raise HTTPException(409, "Ring binding changed; result UNKNOWN")
-    return registration_view(row)
+    if row["state"] != "ACKED":
+        return registration_view(row)
+    try:
+        result = read_plan_input(
+            request.state.ring_config, request.state.ring_cookie,
+            row["ring_goal_id"], row["ring_plan_input_id"],
+        )
+    except (RingUnavailable, RingContractUnknown, RingDenied):
+        return registration_view(row)
+    snapshot = decode_snapshot(bytes(row["request_json"]), row["snapshot_digest"])
+    return registration_view(
+        row, ring_current_status=current_registration_status(row, snapshot, result),
+    )
 
 
 @router.post(

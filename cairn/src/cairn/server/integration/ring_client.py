@@ -117,6 +117,12 @@ def read_release(config: RingConfig, cookie: str, goal_id: str) -> dict[str, Any
     return _read(config, f"/api/v1/goals/{goal_id}/release", cookie)
 
 
+def read_plan_input(
+    config: RingConfig, cookie: str, goal_id: str, plan_input_id: str,
+) -> dict[str, Any]:
+    return _read(config, f"/api/v1/goals/{goal_id}/plan-inputs/{plan_input_id}", cookie)
+
+
 def read_collection(
     config: RingConfig, cookie: str, path: str, *, project_id: str | None = None,
 ) -> list[dict[str, Any]]:

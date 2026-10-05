@@ -765,7 +765,7 @@
                             <div x-show="project.project.access_role === 'owner'" class="border-t border-emerald-200 pt-2 space-y-2">
                               <p class="font-semibold">Ring PlanInput registration</p>
                               <p>Registration records a planning input. It does not publish a Plan, create Tasks, or complete the Goal.</p>
-                              <p x-show="selectedPlanInputRegistration()" x-text="selectedPlanInputRegistration() ? `Local write state: ${selectedPlanInputRegistration().state} · last Ring status: ${selectedPlanInputRegistration().ring_status_observed || 'unknown'}` : ''"></p>
+                              <p x-show="selectedPlanInputRegistration()" x-text="selectedPlanInputRegistration() ? `Local write state: ${selectedPlanInputRegistration().state} · current Ring read: ${selectedPlanInputRegistration().ring_current_status || 'UNKNOWN'}` : ''"></p>
                               <p x-show="selectedPlanInputRegistration()?.ring_plan_input_id" class="font-mono break-all" x-text="selectedPlanInputRegistration()?.ring_plan_input_id || ''"></p>
                               <button type="button" @click="registerPlanInput()" :disabled="planInputBusy || snapshotBusy || snapshotWriteUnknownForSelected()" class="rounded bg-emerald-700 px-2 py-1 text-white disabled:opacity-40" x-text="selectedPlanInputRegistration()?.state === 'UNKNOWN' ? 'Retry original Ring registration' : 'Register selected snapshot in Ring'"></button>
                               <button type="button" @click="loadPlanInputRegistration()" :disabled="planInputBusy" class="rounded border border-emerald-400 px-2 py-1 disabled:opacity-40">Read local registration record</button>
